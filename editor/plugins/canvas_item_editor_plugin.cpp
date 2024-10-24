@@ -495,15 +495,13 @@ real_t CanvasItemEditor::snap_angle(real_t p_target, real_t p_start) const {
 
 void CanvasItemEditor::shortcut_input(const Ref<InputEvent> &p_ev) {
 	ERR_FAIL_COND(p_ev.is_null());
-
-	Ref<InputEventKey> k = p_ev;
-
 	if (!is_visible_in_tree()) {
 		return;
 	}
 
+	Ref<InputEventKey> k = p_ev;
 	if (k.is_valid()) {
-		if (k->get_keycode() == Key::CTRL || k->get_keycode() == Key::ALT || k->get_keycode() == Key::SHIFT) {
+		if (!k->is_echo() && (k->get_keycode() == Key::CTRL || k->get_keycode() == Key::ALT || k->get_keycode() == Key::SHIFT)) {
 			viewport->queue_redraw();
 		}
 
