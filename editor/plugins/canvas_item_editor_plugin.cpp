@@ -1062,42 +1062,64 @@ void CanvasItemEditor::_switch_theme_preview(int p_mode) {
 	EditorNode::get_singleton()->update_preview_themes(theme_preview);
 }
 
+void CanvasItemEditor::_is_hovering_guide(Point2 p_pos, bool p_is_pressed) {
+	Node *const scene = EditorNode::get_singleton()->get_edited_scene();
+	Array vguides = scene->get_meta("_edit_vertical_guides_", Array());
+	Array hguides = scene->get_meta("_edit_horizontal_guides_", Array());
+	Transform2D xform = viewport_scrollable->get_transform() * transform;
+	int hovered_guide_index = -1;
+
+	if (p_pos.x < RULER_WIDTH) {
+		// Check if we are hovering an existing horizontal guide.
+		for (int i = 0; i < hguides.size(); i++) {
+			if (ABS(xform.xform(Point2(0, hguides[i])).y - p_pos.y) < 8) {
+				is_hovering_h_guide = true;
+				hovered_guide_index = i;
+				break;
+			}
+		}
+		if (!is_hovering_h_guide && p_is_pressed) {
+			drag_type = DRAG_V_GUIDE;
+		}
+	} else if (p_pos.y < RULER_WIDTH) {
+		// Check if we are hovering an existing vertical guide.
+		for (int i = 0; i < vguides.size(); i++) {
+			if (ABS(xform.xform(Point2(vguides[i], 0)).x - p_pos.x) < 8) {
+				is_hovering_v_guide = true;
+				hovered_guide_index = i;
+				break;
+			}
+		}
+		if (p_is_pressed) {
+			drag_from = xform.affine_inverse().xform(p_pos);
+			if (!is_hovering_v_guide) {
+				drag_type = DRAG_H_GUIDE;
+			}
+		}
+	}
+	if (p_is_pressed) {
+		dragged_guide_index = hovered_guide_index;
+		if (hovered_guide_index >= 0) {
+			drag_type = is_hovering_h_guide ? DRAG_H_GUIDE : DRAG_V_GUIDE;
+		}
+		drag_to = xform.affine_inverse().xform(p_pos);
+		dragged_guide_pos = xform.xform(snap_point(drag_to, SNAP_GRID | SNAP_PIXEL | SNAP_OTHER_NODES));
+		viewport->queue_redraw();
+	}
+}
+
 bool CanvasItemEditor::_gui_input_rulers_and_guides(const Ref<InputEvent> &p_event) {
 	EditorUndoRedoManager *undo_redo = EditorUndoRedoManager::get_singleton();
 	Ref<InputEventMouseButton> b = p_event;
 	Ref<InputEventMouseMotion> m = p_event;
 
 	if (drag_type == DRAG_NONE) {
-		if (show_guides && show_rulers && EditorNode::get_singleton()->get_edited_scene()) {
-			Transform2D xform = viewport_scrollable->get_transform() * transform;
-			// Retrieve the guide lists
-			Array vguides = EditorNode::get_singleton()->get_edited_scene()->get_meta("_edit_vertical_guides_", Array());
-			Array hguides = EditorNode::get_singleton()->get_edited_scene()->get_meta("_edit_horizontal_guides_", Array());
-
-			// Hover over guides
-			real_t minimum = 1e20;
+		if (show_guides && show_rulers) {
 			is_hovering_h_guide = false;
 			is_hovering_v_guide = false;
 
-			if (m.is_valid() && m->get_position().x < RULER_WIDTH) {
-				// Check if we are hovering an existing horizontal guide
-				for (int i = 0; i < hguides.size(); i++) {
-					if (ABS(xform.xform(Point2(0, hguides[i])).y - m->get_position().y) < MIN(minimum, 8)) {
-						is_hovering_h_guide = true;
-						is_hovering_v_guide = false;
-						break;
-					}
-				}
-
-			} else if (m.is_valid() && m->get_position().y < RULER_WIDTH) {
-				// Check if we are hovering an existing vertical guide
-				for (int i = 0; i < vguides.size(); i++) {
-					if (ABS(xform.xform(Point2(vguides[i], 0)).x - m->get_position().x) < MIN(minimum, 8)) {
-						is_hovering_v_guide = true;
-						is_hovering_h_guide = false;
-						break;
-					}
-				}
+			if (m.is_valid()) {
+				_is_hovering_guide(m->get_position());
 			}
 
 			// Start dragging a guide
@@ -1108,40 +1130,9 @@ bool CanvasItemEditor::_gui_input_rulers_and_guides(const Ref<InputEvent> &p_eve
 					drag_type = DRAG_DOUBLE_GUIDE;
 					dragged_guide_index = -1;
 					return true;
-				} else if (b->get_position().x < RULER_WIDTH) {
+				} else if (b->get_position().x < RULER_WIDTH || b->get_position().y < RULER_WIDTH) {
 					// Check if we drag an existing horizontal guide
-					dragged_guide_index = -1;
-					for (int i = 0; i < hguides.size(); i++) {
-						if (ABS(xform.xform(Point2(0, hguides[i])).y - b->get_position().y) < MIN(minimum, 8)) {
-							dragged_guide_index = i;
-						}
-					}
-
-					if (dragged_guide_index >= 0) {
-						// Drag an existing horizontal guide
-						drag_type = DRAG_H_GUIDE;
-					} else {
-						// Drag a new vertical guide
-						drag_type = DRAG_V_GUIDE;
-					}
-					return true;
-				} else if (b->get_position().y < RULER_WIDTH) {
-					// Check if we drag an existing vertical guide
-					dragged_guide_index = -1;
-					for (int i = 0; i < vguides.size(); i++) {
-						if (ABS(xform.xform(Point2(vguides[i], 0)).x - b->get_position().x) < MIN(minimum, 8)) {
-							dragged_guide_index = i;
-						}
-					}
-
-					if (dragged_guide_index >= 0) {
-						// Drag an existing vertical guide
-						drag_type = DRAG_V_GUIDE;
-					} else {
-						// Drag a new vertical guide
-						drag_type = DRAG_H_GUIDE;
-					}
-					drag_from = xform.affine_inverse().xform(b->get_position());
+					_is_hovering_guide(b->get_position(), true);
 					return true;
 				}
 			}
