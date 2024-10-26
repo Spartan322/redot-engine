@@ -6,7 +6,7 @@
   <project_license>MIT</project_license>
   <name>Redot Engine</name>
   <summary>Multi-platform 2D and 3D game engine with a feature-rich editor</summary>
-  ​<launchable type="desktop-id">org.redotengine.Redot.desktop</launchable>
+  <launchable type="desktop-id">org.redotengine.Redot.desktop</launchable>
   <description>
     <p>
       Redot is forked from Godot which is an advanced, feature-packed, multi-platform 2D and 3D game

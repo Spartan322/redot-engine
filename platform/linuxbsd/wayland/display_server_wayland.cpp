@@ -70,7 +70,7 @@ String DisplayServerWayland::_get_app_id_from_context(Context p_context) {
 			if (config_name.length() != 0) {
 				app_id = config_name;
 			} else {
-				app_id = "org.godotengine.Godot";
+				app_id = "org.redotengine.Redot";
 			}
 		}
 	}
