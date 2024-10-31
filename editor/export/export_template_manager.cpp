@@ -66,10 +66,11 @@ static DownloadsAvailability _get_downloads_availability() {
 	// (which always have a number following their status, e.g. "alpha1").
 	// Therefore, don't display download-related features when using a development version
 	// (whose builds aren't numbered).
-	if (String(VERSION_STATUS) == String("dev") ||
-			String(VERSION_STATUS) == String("alpha") ||
-			String(VERSION_STATUS) == String("beta") ||
-			String(VERSION_STATUS) == String("rc")) {
+	if (VERSION_STATUS_VERSION <= 0 &&
+			(String(VERSION_STATUS) == String("dev") ||
+					String(VERSION_STATUS) == String("alpha") ||
+					String(VERSION_STATUS) == String("beta") ||
+					String(VERSION_STATUS) == String("rc"))) {
 		return DOWNLOADS_NOT_AVAILABLE_FOR_DEV_BUILDS;
 	}
 
