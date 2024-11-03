@@ -81,6 +81,8 @@ private:
 	UpdateStatus status = UpdateStatus::NONE;
 	bool checked_update = false;
 	String available_newer_version;
+	uint64_t ratelimit_reset = UINT64_MAX;
+	uint64_t ratelimit_remaining = UINT64_MAX;
 
 	bool _can_check_updates() const;
 	void _check_update();
