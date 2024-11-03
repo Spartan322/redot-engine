@@ -141,7 +141,8 @@ void EngineUpdateLabel::_http_request_completed(int p_result, int p_response_cod
 			break;
 		}
 
-		int current_version_index;
+		int current_version_index = current_version_info.get("status_version", 0);
+		current_version_index = current_version_index > 0 ? current_version_index : DEV_VERSION;
 		VersionType current_version_type = _get_version_type(current_version_info.get("status", "unknown"), &current_version_index);
 
 		if (int(release_type) > int(current_version_type)) {
@@ -231,7 +232,7 @@ EngineUpdateLabel::VersionType EngineUpdateLabel::_get_version_type(const String
 		}
 	}
 
-	if (r_index) {
+	if (r_index && *r_index == DEV_VERSION) {
 		if (index_string.is_empty()) {
 			*r_index = DEV_VERSION;
 		} else {
