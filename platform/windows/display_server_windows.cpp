@@ -4273,99 +4273,127 @@ LRESULT DisplayServerWindows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 
 			UINT dwSize;
 
-			GetRawInputData((HRAWINPUT)lParam, RID_INPUT, nullptr, &dwSize, sizeof(RAWINPUTHEADER));
+			if (GetRawInputBuffer(nullptr, &dwSize, sizeof(RAWINPUTHEADER)) != 0) {
+				return 0;
+			}
+
+			constexpr uint32_t MAX_MESSAGE_SIZE = 16;
+			dwSize *= MAX_MESSAGE_SIZE;
+
 			LPBYTE lpb = new BYTE[dwSize];
 			if (lpb == nullptr) {
 				return 0;
 			}
 
-			if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) != dwSize) {
-				OutputDebugString(TEXT("GetRawInputData does not return correct size !\n"));
-			}
+			RAWINPUT *pRawInput = (RAWINPUT *)lpb;
 
-			RAWINPUT *raw = (RAWINPUT *)lpb;
+			for (;;) {
+				UINT dwSizeT = dwSize;
+				UINT nInput = GetRawInputBuffer(pRawInput, &dwSizeT, sizeof(RAWINPUTHEADER));
+				if (nInput == 0) {
+					break;
+				}
 
-			const BitField<WinKeyModifierMask> &mods = _get_mods();
-			if (raw->header.dwType == RIM_TYPEKEYBOARD) {
-				if (raw->data.keyboard.VKey == VK_SHIFT) {
-					// If multiple Shifts are held down at the same time,
-					// Windows natively only sends a KEYUP for the last one to be released.
-					if (raw->data.keyboard.Flags & RI_KEY_BREAK) {
-						if (!mods.has_flag(WinKeyModifierMask::SHIFT)) {
-							// A Shift is released, but another Shift is still held
-							ERR_BREAK(key_event_pos >= KEY_EVENT_BUFFER_SIZE);
+				RAWINPUT **paRawInput = new RAWINPUT *[nInput];
+				if (paRawInput == nullptr) {
+					return 0;
+				}
 
-							KeyEvent ke;
-							ke.shift = false;
-							ke.altgr = mods.has_flag(WinKeyModifierMask::ALT_GR);
-							ke.alt = mods.has_flag(WinKeyModifierMask::ALT);
-							ke.control = mods.has_flag(WinKeyModifierMask::CTRL);
-							ke.meta = mods.has_flag(WinKeyModifierMask::META);
-							ke.uMsg = WM_KEYUP;
-							ke.window_id = window_id;
+				RAWINPUT *pri = pRawInput;
+				for (uint32_t i = 0; i < nInput; i++) {
+					RAWINPUT *raw = pRawInput;
 
-							ke.wParam = VK_SHIFT;
-							// data.keyboard.MakeCode -> 0x2A - left shift, 0x36 - right shift.
-							// Bit 30 -> key was previously down, bit 31 -> key is being released.
-							ke.lParam = raw->data.keyboard.MakeCode << 16 | 1 << 30 | 1 << 31;
-							key_event_buffer[key_event_pos++] = ke;
+					const BitField<WinKeyModifierMask> &mods = _get_mods();
+					if (raw->header.dwType == RIM_TYPEKEYBOARD) {
+						if (raw->data.keyboard.VKey == VK_SHIFT) {
+							// If multiple Shifts are held down at the same time,
+							// Windows natively only sends a KEYUP for the last one to be released.
+							if (raw->data.keyboard.Flags & RI_KEY_BREAK) {
+								if (!mods.has_flag(WinKeyModifierMask::SHIFT)) {
+									// A Shift is released, but another Shift is still held
+									ERR_BREAK(key_event_pos >= KEY_EVENT_BUFFER_SIZE);
+
+									KeyEvent ke;
+									ke.shift = false;
+									ke.altgr = mods.has_flag(WinKeyModifierMask::ALT_GR);
+									ke.alt = mods.has_flag(WinKeyModifierMask::ALT);
+									ke.control = mods.has_flag(WinKeyModifierMask::CTRL);
+									ke.meta = mods.has_flag(WinKeyModifierMask::META);
+									ke.uMsg = WM_KEYUP;
+									ke.window_id = window_id;
+
+									ke.wParam = VK_SHIFT;
+									// data.keyboard.MakeCode -> 0x2A - left shift, 0x36 - right shift.
+									// Bit 30 -> key was previously down, bit 31 -> key is being released.
+									ke.lParam = raw->data.keyboard.MakeCode << 16 | 1 << 30 | 1 << 31;
+									key_event_buffer[key_event_pos++] = ke;
+								}
+							}
+						}
+					} else if (mouse_mode == MOUSE_MODE_CAPTURED && raw->header.dwType == RIM_TYPEMOUSE) {
+						Ref<InputEventMouseMotion> mm;
+						mm.instantiate();
+
+						mm->set_window_id(window_id);
+						mm->set_ctrl_pressed(mods.has_flag(WinKeyModifierMask::CTRL));
+						mm->set_shift_pressed(mods.has_flag(WinKeyModifierMask::SHIFT));
+						mm->set_alt_pressed(mods.has_flag(WinKeyModifierMask::ALT));
+						mm->set_meta_pressed(mods.has_flag(WinKeyModifierMask::META));
+
+						mm->set_pressure((raw->data.mouse.ulButtons & RI_MOUSE_LEFT_BUTTON_DOWN) ? 1.0f : 0.0f);
+
+						mm->set_button_mask(mouse_get_button_state());
+
+						Point2i c(windows[window_id].width / 2, windows[window_id].height / 2);
+
+						// Centering just so it works as before.
+						POINT pos = { (int)c.x, (int)c.y };
+						ClientToScreen(windows[window_id].hWnd, &pos);
+						SetCursorPos(pos.x, pos.y);
+
+						mm->set_position(c);
+						mm->set_global_position(c);
+						mm->set_velocity(Vector2(0, 0));
+						mm->set_screen_velocity(Vector2(0, 0));
+
+						if (raw->data.mouse.usFlags == MOUSE_MOVE_RELATIVE) {
+							mm->set_relative(Vector2(raw->data.mouse.lLastX, raw->data.mouse.lLastY));
+
+						} else if (raw->data.mouse.usFlags == MOUSE_MOVE_ABSOLUTE) {
+							int nScreenWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+							int nScreenHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+							int nScreenLeft = GetSystemMetrics(SM_XVIRTUALSCREEN);
+							int nScreenTop = GetSystemMetrics(SM_YVIRTUALSCREEN);
+
+							Vector2 abs_pos(
+									(double(raw->data.mouse.lLastX) - 65536.0 / (nScreenWidth)) * nScreenWidth / 65536.0 + nScreenLeft,
+									(double(raw->data.mouse.lLastY) - 65536.0 / (nScreenHeight)) * nScreenHeight / 65536.0 + nScreenTop);
+
+							POINT coords; // Client coords.
+							coords.x = abs_pos.x;
+							coords.y = abs_pos.y;
+
+							ScreenToClient(hWnd, &coords);
+
+							mm->set_relative(Vector2(coords.x - old_x, coords.y - old_y));
+							old_x = coords.x;
+							old_y = coords.y;
+						}
+						mm->set_relative_screen_position(mm->get_relative());
+
+						if ((windows[window_id].window_focused || windows[window_id].is_popup) && mm->get_relative() != Vector2()) {
+							Input::get_singleton()->parse_input_event(mm);
 						}
 					}
+
+					paRawInput[i] = pri;
+					{
+						using QWORD = uint64_t;
+						pri = NEXTRAWINPUTBLOCK(pri);
+					}
 				}
-			} else if (mouse_mode == MOUSE_MODE_CAPTURED && raw->header.dwType == RIM_TYPEMOUSE) {
-				Ref<InputEventMouseMotion> mm;
-				mm.instantiate();
 
-				mm->set_window_id(window_id);
-				mm->set_ctrl_pressed(mods.has_flag(WinKeyModifierMask::CTRL));
-				mm->set_shift_pressed(mods.has_flag(WinKeyModifierMask::SHIFT));
-				mm->set_alt_pressed(mods.has_flag(WinKeyModifierMask::ALT));
-				mm->set_meta_pressed(mods.has_flag(WinKeyModifierMask::META));
-
-				mm->set_pressure((raw->data.mouse.ulButtons & RI_MOUSE_LEFT_BUTTON_DOWN) ? 1.0f : 0.0f);
-
-				mm->set_button_mask(mouse_get_button_state());
-
-				Point2i c(windows[window_id].width / 2, windows[window_id].height / 2);
-
-				// Centering just so it works as before.
-				POINT pos = { (int)c.x, (int)c.y };
-				ClientToScreen(windows[window_id].hWnd, &pos);
-				SetCursorPos(pos.x, pos.y);
-
-				mm->set_position(c);
-				mm->set_global_position(c);
-				mm->set_velocity(Vector2(0, 0));
-				mm->set_screen_velocity(Vector2(0, 0));
-
-				if (raw->data.mouse.usFlags == MOUSE_MOVE_RELATIVE) {
-					mm->set_relative(Vector2(raw->data.mouse.lLastX, raw->data.mouse.lLastY));
-
-				} else if (raw->data.mouse.usFlags == MOUSE_MOVE_ABSOLUTE) {
-					int nScreenWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
-					int nScreenHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
-					int nScreenLeft = GetSystemMetrics(SM_XVIRTUALSCREEN);
-					int nScreenTop = GetSystemMetrics(SM_YVIRTUALSCREEN);
-
-					Vector2 abs_pos(
-							(double(raw->data.mouse.lLastX) - 65536.0 / (nScreenWidth)) * nScreenWidth / 65536.0 + nScreenLeft,
-							(double(raw->data.mouse.lLastY) - 65536.0 / (nScreenHeight)) * nScreenHeight / 65536.0 + nScreenTop);
-
-					POINT coords; // Client coords.
-					coords.x = abs_pos.x;
-					coords.y = abs_pos.y;
-
-					ScreenToClient(hWnd, &coords);
-
-					mm->set_relative(Vector2(coords.x - old_x, coords.y - old_y));
-					old_x = coords.x;
-					old_y = coords.y;
-				}
-				mm->set_relative_screen_position(mm->get_relative());
-
-				if ((windows[window_id].window_focused || windows[window_id].is_popup) && mm->get_relative() != Vector2()) {
-					Input::get_singleton()->parse_input_event(mm);
-				}
+				delete[] paRawInput;
 			}
 			delete[] lpb;
 		} break;
