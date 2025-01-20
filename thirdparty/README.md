@@ -573,6 +573,10 @@ Files extracted from upstream source:
 - `scripts/pnglibconf.h.prebuilt` as `pnglibconf.h`
 - `LICENSE`
 
+Patches:
+
+- `0001-add-png.patch` (Redot GH-937)
+
 
 ## libtheora
 

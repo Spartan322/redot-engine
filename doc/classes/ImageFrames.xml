@@ -6,7 +6,7 @@
 	<description>
 		A container of [Image]s used to load and arrange a sequence of frames. Each frame can specify a delay for animated images.
 		Can be used to load animated image formats externally.
-		Supported animated image formats are [url=https://www.w3.org/Graphics/GIF/spec-gif89a.txt]GIF[/url] ([code].gif[/code]) and any format exposed via a GDExtension plugin.
+		Supported animated image formats are [url=https://www.w3.org/Graphics/GIF/spec-gif89a.txt]GIF[/url] ([code].gif[/code]), [url=https://wiki.mozilla.org/APNG_Specification]APNG[/url] ([code].png[/code] and [code].apng[/code]), and any format exposed via a GDExtension plugin.
 		An [ImageTexture] is not meant to be operated from within the editor interface directly, and is mostly useful for rendering images on screen dynamically via code. If you need to generate images procedurally from within the editor, consider saving and importing images as custom texture resources implementing a new [EditorImportPlugin].
 	</description>
 	<tutorials>
@@ -55,6 +55,15 @@
 				var texture = load("res://animated.gif")
 				var image: AnimatedTexture = AnimatedTexture.create_from_image_frames(texture)
 				[/codeblock]
+			</description>
+		</method>
+		<method name="load_apng_from_buffer">
+			<return type="int" enum="Error" />
+			<param index="0" name="buffer" type="PackedByteArray" />
+			<param index="1" name="max_frames" type="int" />
+			<description>
+				Loads image frames from the binary contents of an APNG file.
+				[b]Note:[/b] This function will read standard PNG files just like [method Image.load_png_from_buffer]. If libpng is not compiled with support for reading APNG files, APNG files are treated as PNG files.
 			</description>
 		</method>
 		<method name="load_from_file" qualifiers="static">

@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  png_driver_common.h                                                   */
+/*  image_frames_loader_png.h                                             */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             REDOT ENGINE                               */
@@ -32,18 +32,14 @@
 
 #pragma once
 
-#include "core/io/image.h"
-#include "core/io/image_frames.h"
+#include "core/io/image_frames_loader.h"
 
-namespace PNGDriverCommon {
+class ImageFramesLoaderPNG : public ImageFramesFormatLoader {
+private:
+	static Ref<ImageFrames> load_mem_apng(const uint8_t *p_png, int p_size, int p_max_frames);
 
-// Attempt to load png from buffer (p_source, p_size) into p_image
-Error png_to_image(const uint8_t *p_source, size_t p_size, bool p_force_linear, Ref<Image> p_image);
-
-// Append p_image, as a png, to p_buffer.
-// Contents of p_buffer is unspecified if error returned.
-Error image_to_png(const Ref<Image> &p_image, Vector<uint8_t> &p_buffer);
-
-// Attempt to load apng from buffer (p_source, p_size) into p_frames
-Error apng_to_image_frames(const uint8_t *p_source, size_t p_size, bool p_force_linear, uint32_t p_frame_limit, Ref<ImageFrames> p_frames);
-} // namespace PNGDriverCommon
+public:
+	virtual Error load_image_frames(Ref<ImageFrames> p_image, Ref<FileAccess> f, BitField<ImageFramesFormatLoader::LoaderFlags> p_flags, float p_scale = 1.0, int p_max_frames = 0);
+	virtual void get_recognized_extensions(List<String> *p_extensions) const;
+	ImageFramesLoaderPNG();
+};
