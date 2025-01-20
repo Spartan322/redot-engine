@@ -560,6 +560,8 @@ Files extracted from upstream source:
 - `scripts/pnglibconf.h.prebuilt` as `pnglibconf.h`
 - `LICENSE`
 
+Patch `apng.patch` adds animated png support to libpng from https://sourceforge.net/projects/libpng-apng.
+
 
 ## libtheora
 
