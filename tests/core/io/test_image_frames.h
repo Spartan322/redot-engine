@@ -98,6 +98,17 @@ TEST_CASE("[ImageFrames] Loading") {
 			image_frames_gif->load_gif_from_buffer(data_gif) == OK,
 			"The GIF image frame should load successfully.");
 #endif
+
+	// Load APNG
+	Ref<ImageFrames> image_frames_apng = memnew(ImageFrames());
+	Ref<FileAccess> f_apng = FileAccess::open(TestUtils::get_data_path("image_frames/icon.apng"), FileAccess::READ, &err);
+	REQUIRE(f_apng.is_valid());
+	PackedByteArray data_apng;
+	data_apng.resize(f_apng->get_length() + 1);
+	f_apng->get_buffer(data_apng.ptrw(), f_apng->get_length());
+	CHECK_MESSAGE(
+			image_frames_apng->load_apng_from_buffer(data_apng) == OK,
+			"The APNG image frame should load successfully.");
 }
 
 TEST_CASE("[ImageFrames] Basic getters") {

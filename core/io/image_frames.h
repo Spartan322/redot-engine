@@ -44,6 +44,7 @@ class ImageFrames : public Resource {
 
 public:
 	static inline ImageFramesMemLoadFunc _gif_mem_loader_func = nullptr;
+	static inline ImageFramesMemLoadFunc _apng_mem_loader_func = nullptr;
 
 private:
 	struct Frame {
@@ -75,6 +76,7 @@ public:
 	bool is_empty() const;
 
 	ImageFrames() = default; // Create empty image frames.
+	ImageFrames(const uint8_t *p_mem_apng, int p_len);
 	ImageFrames(const Vector<Ref<Image>> &p_images, float p_delay = 1.0); // Import images from an image vector and delay.
 	ImageFrames(const Vector<Ref<Image>> &p_images, const Vector<float> &p_delays); // Import images from an image vector and delay vector.
 
@@ -82,6 +84,8 @@ public:
 
 	Error load(const String &p_path);
 	static Ref<ImageFrames> load_from_file(const String &p_path);
+
+	Error load_apng_from_buffer(const PackedByteArray &p_array, int p_max_frames = 0);
 	Error load_gif_from_buffer(const PackedByteArray &p_array, int p_max_frames = 0);
 
 	void copy_internals_from(const Ref<ImageFrames> &p_frames) {

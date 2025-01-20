@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  png_driver_common.h                                                   */
+/*  image_frames_loader_png.cpp                                           */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             REDOT ENGINE                               */
@@ -30,20 +30,41 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#pragma once
+#include "image_frames_loader_png.h"
 
-#include "core/io/image.h"
-#include "core/io/image_frames.h"
+#include "drivers/png/png_driver_common.h"
 
-namespace PNGDriverCommon {
+Error ImageFramesLoaderPNG::load_image_frames(Ref<ImageFrames> p_image, Ref<FileAccess> f, BitField<ImageFramesFormatLoader::LoaderFlags> p_flags, float p_scale, int p_max_frames) {
+	const uint64_t buffer_size = f->get_length();
+	Vector<uint8_t> file_buffer;
+	Error err = file_buffer.resize(buffer_size);
+	if (err) {
+		return err;
+	}
+	{
+		uint8_t *writer = file_buffer.ptrw();
+		f->get_buffer(writer, buffer_size);
+	}
+	const uint8_t *reader = file_buffer.ptr();
+	return PNGDriverCommon::apng_to_image_frames(reader, buffer_size, p_flags & FLAG_FORCE_LINEAR, p_max_frames, p_image);
+}
 
-// Attempt to load png from buffer (p_source, p_size) into p_image
-Error png_to_image(const uint8_t *p_source, size_t p_size, bool p_force_linear, Ref<Image> p_image);
+void ImageFramesLoaderPNG::get_recognized_extensions(List<String> *p_extensions) const {
+	p_extensions->push_back("png");
+	p_extensions->push_back("apng");
+}
 
-// Append p_image, as a png, to p_buffer.
-// Contents of p_buffer is unspecified if error returned.
-Error image_to_png(const Ref<Image> &p_image, Vector<uint8_t> &p_buffer);
+Ref<ImageFrames> ImageFramesLoaderPNG::load_mem_apng(const uint8_t *p_png, int p_size, int p_max_frames) {
+	Ref<ImageFrames> img_frames;
+	img_frames.instantiate();
 
-// Attempt to load apng from buffer (p_source, p_size) into p_frames
-Error apng_to_image_frames(const uint8_t *p_source, size_t p_size, bool p_force_linear, uint32_t p_frame_limit, Ref<ImageFrames> p_frames);
-} // namespace PNGDriverCommon
+	// the value of p_force_linear does not matter since it only applies to 16 bit
+	Error err = PNGDriverCommon::apng_to_image_frames(p_png, p_size, false, p_max_frames, img_frames);
+	ERR_FAIL_COND_V(err, Ref<ImageFrames>());
+
+	return img_frames;
+}
+
+ImageFramesLoaderPNG::ImageFramesLoaderPNG() {
+	ImageFrames::_apng_mem_loader_func = load_mem_apng;
+}
