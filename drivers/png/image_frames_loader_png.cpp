@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  register_driver_types.cpp                                             */
+/*  image_frames_loader_png.cpp                                           */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             REDOT ENGINE                               */
@@ -30,40 +30,41 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#include "register_driver_types.h"
+#include "image_frames_loader_png.h"
 
-#include "drivers/png/image_frames_loader_png.h"
-#include "drivers/png/image_loader_png.h"
-#include "drivers/png/resource_saver_png.h"
+#include "drivers/png/png_driver_common.h"
 
-static Ref<ImageLoaderPNG> image_loader_png;
-static Ref<ImageFramesLoaderPNG> image_frames_loader_png;
-static Ref<ResourceSaverPNG> resource_saver_png;
-
-void register_core_driver_types() {
-	image_loader_png.instantiate();
-	ImageLoader::add_image_format_loader(image_loader_png);
-
-	image_frames_loader_png.instantiate();
-	ImageFramesLoader::add_image_frames_format_loader(image_frames_loader_png);
-
-	resource_saver_png.instantiate();
-	ResourceSaver::add_resource_format_saver(resource_saver_png);
+Error ImageFramesLoaderPNG::load_image_frames(Ref<ImageFrames> p_image, Ref<FileAccess> f, BitField<ImageFramesFormatLoader::LoaderFlags> p_flags, float p_scale, int p_max_frames) {
+	const uint64_t buffer_size = f->get_length();
+	Vector<uint8_t> file_buffer;
+	Error err = file_buffer.resize(buffer_size);
+	if (err) {
+		return err;
+	}
+	{
+		uint8_t *writer = file_buffer.ptrw();
+		f->get_buffer(writer, buffer_size);
+	}
+	const uint8_t *reader = file_buffer.ptr();
+	return PNGDriverCommon::apng_to_image_frames(reader, buffer_size, p_flags & FLAG_FORCE_LINEAR, p_max_frames, p_image);
 }
 
-void unregister_core_driver_types() {
-	ImageLoader::remove_image_format_loader(image_loader_png);
-	image_loader_png.unref();
-
-	ImageFramesLoader::remove_image_frames_format_loader(image_frames_loader_png);
-	image_frames_loader_png.unref();
-
-	ResourceSaver::remove_resource_format_saver(resource_saver_png);
-	resource_saver_png.unref();
+void ImageFramesLoaderPNG::get_recognized_extensions(List<String> *p_extensions) const {
+	p_extensions->push_back("png");
+	p_extensions->push_back("apng");
 }
 
-void register_driver_types() {
+Ref<ImageFrames> ImageFramesLoaderPNG::load_mem_apng(const uint8_t *p_png, int p_size, int p_max_frames) {
+	Ref<ImageFrames> img_frames;
+	img_frames.instantiate();
+
+	// the value of p_force_linear does not matter since it only applies to 16 bit
+	Error err = PNGDriverCommon::apng_to_image_frames(p_png, p_size, false, p_max_frames, img_frames);
+	ERR_FAIL_COND_V(err, Ref<ImageFrames>());
+
+	return img_frames;
 }
 
-void unregister_driver_types() {
+ImageFramesLoaderPNG::ImageFramesLoaderPNG() {
+	ImageFrames::_apng_mem_loader_func = load_mem_apng;
 }

@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  register_driver_types.cpp                                             */
+/*  image_frames_loader_png.h                                             */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             REDOT ENGINE                               */
@@ -30,40 +30,19 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#include "register_driver_types.h"
+#ifndef IMAGE_FRAMES_LOADER_PNG_H
+#define IMAGE_FRAMES_LOADER_PNG_H
 
-#include "drivers/png/image_frames_loader_png.h"
-#include "drivers/png/image_loader_png.h"
-#include "drivers/png/resource_saver_png.h"
+#include "core/io/image_frames_loader.h"
 
-static Ref<ImageLoaderPNG> image_loader_png;
-static Ref<ImageFramesLoaderPNG> image_frames_loader_png;
-static Ref<ResourceSaverPNG> resource_saver_png;
+class ImageFramesLoaderPNG : public ImageFramesFormatLoader {
+private:
+	static Ref<ImageFrames> load_mem_apng(const uint8_t *p_png, int p_size, int p_max_frames);
 
-void register_core_driver_types() {
-	image_loader_png.instantiate();
-	ImageLoader::add_image_format_loader(image_loader_png);
+public:
+	virtual Error load_image_frames(Ref<ImageFrames> p_image, Ref<FileAccess> f, BitField<ImageFramesFormatLoader::LoaderFlags> p_flags, float p_scale = 1.0, int p_max_frames = 0);
+	virtual void get_recognized_extensions(List<String> *p_extensions) const;
+	ImageFramesLoaderPNG();
+};
 
-	image_frames_loader_png.instantiate();
-	ImageFramesLoader::add_image_frames_format_loader(image_frames_loader_png);
-
-	resource_saver_png.instantiate();
-	ResourceSaver::add_resource_format_saver(resource_saver_png);
-}
-
-void unregister_core_driver_types() {
-	ImageLoader::remove_image_format_loader(image_loader_png);
-	image_loader_png.unref();
-
-	ImageFramesLoader::remove_image_frames_format_loader(image_frames_loader_png);
-	image_frames_loader_png.unref();
-
-	ResourceSaver::remove_resource_format_saver(resource_saver_png);
-	resource_saver_png.unref();
-}
-
-void register_driver_types() {
-}
-
-void unregister_driver_types() {
-}
+#endif // IMAGE_FRAMES_LOADER_PNG_H

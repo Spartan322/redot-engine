@@ -35,6 +35,7 @@
 #include "core/io/resource_loader.h"
 #include "core/object/class_db.h"
 
+ImageFramesMemLoadFunc ImageFrames::_apng_mem_loader_func = nullptr;
 ImageFramesMemLoadFunc ImageFrames::_gif_mem_loader_func = nullptr;
 
 void ImageFrames::set_frame_count(int p_frames) {
@@ -115,12 +116,22 @@ Ref<ImageFrames> ImageFrames::load_from_file(const String &p_path) {
 	return img_frames;
 }
 
+Error ImageFrames::load_apng_from_buffer(const PackedByteArray &p_array, int p_max_frames) {
+	return _load_from_buffer(p_array, _apng_mem_loader_func, p_max_frames);
+}
+
 Error ImageFrames::load_gif_from_buffer(const PackedByteArray &p_array, int p_max_frames) {
 	ERR_FAIL_NULL_V_MSG(
 			_gif_mem_loader_func,
 			ERR_UNAVAILABLE,
 			"The GIF module isn't enabled. Recompile the Redot editor or export template binary with the `module_gif_enabled=yes` SCons option.");
 	return _load_from_buffer(p_array, _gif_mem_loader_func, p_max_frames);
+}
+
+ImageFrames::ImageFrames(const uint8_t *p_mem_apng, int p_len) {
+	if (_apng_mem_loader_func) {
+		copy_internals_from(_apng_mem_loader_func(p_mem_apng, p_len, 0));
+	}
 }
 
 ImageFrames::ImageFrames(const Vector<Ref<Image>> &p_images, float p_delay) {
@@ -156,6 +167,7 @@ void ImageFrames::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("load", "path"), &ImageFrames::load);
 	ClassDB::bind_static_method("ImageFrames", D_METHOD("load_from_file", "path"), &ImageFrames::load_from_file);
 
+	ClassDB::bind_method(D_METHOD("load_apng_from_buffer", "buffer", "max_frames"), &ImageFrames::load_apng_from_buffer);
 	ClassDB::bind_method(D_METHOD("load_gif_from_buffer", "buffer", "max_frames"), &ImageFrames::load_gif_from_buffer);
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "frame_count", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_frame_count", "get_frame_count");
