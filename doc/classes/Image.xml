@@ -424,6 +424,7 @@
 			<param index="0" name="buffer" type="PackedByteArray" />
 			<description>
 				Loads an image from the binary contents of a WebP file.
+				If the file is animated, this function will load the first frame of the animation.
 			</description>
 		</method>
 		<method name="normal_map_to_xy">
