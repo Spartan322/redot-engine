@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  image_frames.h                                                        */
+/*  image_frames_loader_webp.h                                            */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             REDOT ENGINE                               */
@@ -32,66 +32,11 @@
 
 #pragma once
 
-#include "core/io/image.h"
-#include "core/io/resource.h"
-#include "core/variant/variant.h"
+#include "core/io/image_frames_loader.h"
 
-class ImageFrames;
-typedef Ref<ImageFrames> (*ImageFramesMemLoadFunc)(const uint8_t *p_png, int p_size, int p_max_frames);
-
-class ImageFrames : public Resource {
-	GDCLASS(ImageFrames, Resource);
-
+class ImageFramesLoaderWebP : public ImageFramesFormatLoader {
 public:
-	static inline ImageFramesMemLoadFunc _gif_mem_loader_func = nullptr;
-	static inline ImageFramesMemLoadFunc _apng_mem_loader_func = nullptr;
-	static inline ImageFramesMemLoadFunc _webp_mem_loader_func = nullptr;
-
-private:
-	struct Frame {
-		Ref<Image> image;
-		float delay = 1.0;
-	};
-
-	Vector<Frame> frames;
-	int loop_count = 0;
-
-	Error _load_from_buffer(const Vector<uint8_t> &p_array, ImageFramesMemLoadFunc p_loader, int p_max_frames);
-
-protected:
-	static void _bind_methods();
-
-public:
-	void set_frame_count(int p_frames);
-	int get_frame_count() const;
-
-	void set_frame_image(int p_frame, Ref<Image> p_image);
-	Ref<Image> get_frame_image(int p_frame) const;
-
-	void set_frame_delay(int p_frame, float p_delay);
-	float get_frame_delay(int p_frame) const;
-
-	void set_loop_count(int p_loop);
-	int get_loop_count() const;
-
-	bool is_empty() const;
-
-	ImageFrames() = default; // Create empty image frames.
-	ImageFrames(const uint8_t *p_mem_apng, int p_len);
-	ImageFrames(const Vector<Ref<Image>> &p_images, float p_delay = 1.0); // Import images from an image vector and delay.
-	ImageFrames(const Vector<Ref<Image>> &p_images, const Vector<float> &p_delays); // Import images from an image vector and delay vector.
-
-	~ImageFrames() {}
-
-	Error load(const String &p_path);
-	static Ref<ImageFrames> load_from_file(const String &p_path);
-
-	Error load_apng_from_buffer(const PackedByteArray &p_array, int p_max_frames = 0);
-	Error load_webp_from_buffer(const PackedByteArray &p_array, int p_max_frames = 0);
-	Error load_gif_from_buffer(const PackedByteArray &p_array, int p_max_frames = 0);
-
-	void copy_internals_from(const Ref<ImageFrames> &p_frames) {
-		ERR_FAIL_COND_MSG(p_frames.is_null(), "Cannot copy image internals: invalid ImageFrames object.");
-		frames = p_frames->frames;
-	}
+	virtual Error load_image_frames(Ref<ImageFrames> p_image, Ref<FileAccess> f, BitField<ImageFramesFormatLoader::LoaderFlags> p_flags, float p_scale, int p_max_frames);
+	virtual void get_recognized_extensions(List<String> *p_extensions) const;
+	ImageFramesLoaderWebP();
 };

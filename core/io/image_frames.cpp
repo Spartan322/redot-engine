@@ -129,6 +129,10 @@ Error ImageFrames::load_apng_from_buffer(const PackedByteArray &p_array, int p_m
 	return _load_from_buffer(p_array, _apng_mem_loader_func, p_max_frames);
 }
 
+Error ImageFrames::load_webp_from_buffer(const PackedByteArray &p_array, int p_max_frames) {
+	return _load_from_buffer(p_array, _webp_mem_loader_func, p_max_frames);
+}
+
 Error ImageFrames::load_gif_from_buffer(const PackedByteArray &p_array, int p_max_frames) {
 	ERR_FAIL_NULL_V_MSG(
 			_gif_mem_loader_func,
@@ -180,6 +184,7 @@ void ImageFrames::_bind_methods() {
 	ClassDB::bind_static_method("ImageFrames", D_METHOD("load_from_file", "path"), &ImageFrames::load_from_file);
 
 	ClassDB::bind_method(D_METHOD("load_apng_from_buffer", "buffer", "max_frames"), &ImageFrames::load_apng_from_buffer);
+	ClassDB::bind_method(D_METHOD("load_webp_from_buffer", "buffer", "max_frames"), &ImageFrames::load_webp_from_buffer);
 	ClassDB::bind_method(D_METHOD("load_gif_from_buffer", "buffer", "max_frames"), &ImageFrames::load_gif_from_buffer);
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "frame_count", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_frame_count", "get_frame_count");

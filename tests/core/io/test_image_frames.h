@@ -99,6 +99,19 @@ TEST_CASE("[ImageFrames] Loading") {
 			"The GIF image frame should load successfully.");
 #endif
 
+#ifdef MODULE_WEBP_ENABLED
+	// Load WebP
+	Ref<ImageFrames> image_frames_webp = memnew(ImageFrames());
+	Ref<FileAccess> f_webp = FileAccess::open(TestUtils::get_data_path("image_frames/icon.webp"), FileAccess::READ, &err);
+	REQUIRE(f_webp.is_valid());
+	PackedByteArray data_webp;
+	data_webp.resize(f_webp->get_length() + 1);
+	f_webp->get_buffer(data_webp.ptrw(), f_webp->get_length());
+	CHECK_MESSAGE(
+			image_frames_webp->load_webp_from_buffer(data_webp) == OK,
+			"The WebP image should load successfully.");
+#endif // MODULE_WEBP_ENABLED
+
 	// Load APNG
 	Ref<ImageFrames> image_frames_apng = memnew(ImageFrames());
 	Ref<FileAccess> f_apng = FileAccess::open(TestUtils::get_data_path("image_frames/icon.apng"), FileAccess::READ, &err);

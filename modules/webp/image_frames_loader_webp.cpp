@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  image_frames.h                                                        */
+/*  image_frames_loader_webp.cpp                                          */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             REDOT ENGINE                               */
@@ -30,68 +30,37 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#pragma once
+#include "image_frames_loader_webp.h"
 
-#include "core/io/image.h"
-#include "core/io/resource.h"
-#include "core/variant/variant.h"
+#include "webp_common.h"
 
-class ImageFrames;
-typedef Ref<ImageFrames> (*ImageFramesMemLoadFunc)(const uint8_t *p_png, int p_size, int p_max_frames);
+static Ref<ImageFrames> _webp_mem_loader_func(const uint8_t *p_webp_data, int p_size, int p_max_frames) {
+	Ref<ImageFrames> frames;
+	frames.instantiate();
+	Error err = WebPCommon::webp_load_image_frames_from_buffer(frames.ptr(), p_webp_data, p_size, p_max_frames);
+	ERR_FAIL_COND_V(err, Ref<Image>());
+	return frames;
+}
 
-class ImageFrames : public Resource {
-	GDCLASS(ImageFrames, Resource);
+Error ImageFramesLoaderWebP::load_image_frames(Ref<ImageFrames> p_image, Ref<FileAccess> f, BitField<ImageFramesFormatLoader::LoaderFlags> p_flags, float p_scale, int p_max_frames) {
+	Vector<uint8_t> src_image;
+	uint64_t src_image_len = f->get_length();
+	ERR_FAIL_COND_V(src_image_len == 0, ERR_FILE_CORRUPT);
+	src_image.resize(src_image_len);
 
-public:
-	static inline ImageFramesMemLoadFunc _gif_mem_loader_func = nullptr;
-	static inline ImageFramesMemLoadFunc _apng_mem_loader_func = nullptr;
-	static inline ImageFramesMemLoadFunc _webp_mem_loader_func = nullptr;
+	uint8_t *w = src_image.ptrw();
 
-private:
-	struct Frame {
-		Ref<Image> image;
-		float delay = 1.0;
-	};
+	f->get_buffer(&w[0], src_image_len);
 
-	Vector<Frame> frames;
-	int loop_count = 0;
+	Error err = WebPCommon::webp_load_image_frames_from_buffer(p_image.ptr(), w, src_image_len, p_max_frames);
 
-	Error _load_from_buffer(const Vector<uint8_t> &p_array, ImageFramesMemLoadFunc p_loader, int p_max_frames);
+	return err;
+}
 
-protected:
-	static void _bind_methods();
+void ImageFramesLoaderWebP::get_recognized_extensions(List<String> *p_extensions) const {
+	p_extensions->push_back("webp");
+}
 
-public:
-	void set_frame_count(int p_frames);
-	int get_frame_count() const;
-
-	void set_frame_image(int p_frame, Ref<Image> p_image);
-	Ref<Image> get_frame_image(int p_frame) const;
-
-	void set_frame_delay(int p_frame, float p_delay);
-	float get_frame_delay(int p_frame) const;
-
-	void set_loop_count(int p_loop);
-	int get_loop_count() const;
-
-	bool is_empty() const;
-
-	ImageFrames() = default; // Create empty image frames.
-	ImageFrames(const uint8_t *p_mem_apng, int p_len);
-	ImageFrames(const Vector<Ref<Image>> &p_images, float p_delay = 1.0); // Import images from an image vector and delay.
-	ImageFrames(const Vector<Ref<Image>> &p_images, const Vector<float> &p_delays); // Import images from an image vector and delay vector.
-
-	~ImageFrames() {}
-
-	Error load(const String &p_path);
-	static Ref<ImageFrames> load_from_file(const String &p_path);
-
-	Error load_apng_from_buffer(const PackedByteArray &p_array, int p_max_frames = 0);
-	Error load_webp_from_buffer(const PackedByteArray &p_array, int p_max_frames = 0);
-	Error load_gif_from_buffer(const PackedByteArray &p_array, int p_max_frames = 0);
-
-	void copy_internals_from(const Ref<ImageFrames> &p_frames) {
-		ERR_FAIL_COND_MSG(p_frames.is_null(), "Cannot copy image internals: invalid ImageFrames object.");
-		frames = p_frames->frames;
-	}
-};
+ImageFramesLoaderWebP::ImageFramesLoaderWebP() {
+	ImageFrames::_webp_mem_loader_func = _webp_mem_loader_func;
+}
