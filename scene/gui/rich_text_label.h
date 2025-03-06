@@ -794,7 +794,6 @@ public:
 	int get_pending_paragraphs() const;
 	bool is_ready() const;
 	bool is_updating() const;
-	void wait_until_finished();
 
 	void set_threaded(bool p_threaded);
 	bool is_threaded() const;
