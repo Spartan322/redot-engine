@@ -63,3 +63,12 @@ jobs:
     # appropriately.
     needs: linux-build
     uses: ./.github/workflows/godot_cpp_test.yml
+
+  redot-cpp-test:
+    if: ${{ vars.DISABLE_GODOT_CI == '' }}
+    name: 🪲 Redot CPP
+    # This can be changed to depend on another platform, if we decide to use it for
+    # redot-cpp instead. Make sure to move the .github/actions/redot-api-dump step
+    # appropriately.
+    needs: linux-build
+    uses: ./.github/workflows/redot_cpp_test.yml
