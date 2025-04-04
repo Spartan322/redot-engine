@@ -10,7 +10,7 @@ env:
   GODOT_CPP_BRANCH: '4.2'
 
 concurrency:
-  group: ci-${{github.actor}}-${{github.head_ref || github.run_number}}-${{github.ref}}-cpp-tests
+  group: ci-${{github.actor}}-${{github.head_ref || github.run_number}}-${{github.ref}}-godot-cpp-tests
   cancel-in-progress: true
 
 jobs:
