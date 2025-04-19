@@ -438,20 +438,19 @@ Error CowData<T>::_realloc(Size p_alloc_size) {
 
 template <typename T>
 typename CowData<T>::Size CowData<T>::find(const T &p_val, Size p_from) const {
-	Size ret = -1;
-
-	if (p_from < 0 || size() == 0) {
-		return ret;
+	if (p_from < 0) {
+		return -1;
 	}
 
-	for (Size i = p_from; i < size(); i++) {
-		if (get(i) == p_val) {
-			ret = i;
-			break;
+	const Size s = size();
+
+	for (Size i = p_from; i < s; i++) {
+		if (_ptr[i] == p_val) {
+			return i;
 		}
 	}
 
-	return ret;
+	return -1;
 }
 
 template <typename T>
@@ -466,7 +465,7 @@ typename CowData<T>::Size CowData<T>::rfind(const T &p_val, Size p_from) const {
 	}
 
 	for (Size i = p_from; i >= 0; i--) {
-		if (get(i) == p_val) {
+		if (_ptr[i] == p_val) {
 			return i;
 		}
 	}
@@ -476,8 +475,9 @@ typename CowData<T>::Size CowData<T>::rfind(const T &p_val, Size p_from) const {
 template <typename T>
 typename CowData<T>::Size CowData<T>::count(const T &p_val) const {
 	Size amount = 0;
-	for (Size i = 0; i < size(); i++) {
-		if (get(i) == p_val) {
+	const Size s = size();
+	for (Size i = 0; i < s; i++) {
+		if (_ptr[i] == p_val) {
 			amount++;
 		}
 	}

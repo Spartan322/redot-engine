@@ -10,5 +10,5 @@ website = "https://redotengine.org"
 docs = "latest"
 godot_major = 4
 godot_minor = 4
-godot_patch = 0
+godot_patch = 1
 godot_status = "stable"
