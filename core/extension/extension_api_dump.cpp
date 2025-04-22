@@ -107,21 +107,38 @@ Dictionary GDExtensionAPIDump::generate_extension_api(bool p_include_docs) {
 	Dictionary api_dump;
 
 	{
-		//header
-		Dictionary header;
-		header["version_major"] = VERSION_MAJOR;
-		header["version_minor"] = VERSION_MINOR;
+		//redot header
+		Dictionary redot_header;
+		redot_header["version_major"] = VERSION_MAJOR;
+		redot_header["version_minor"] = VERSION_MINOR;
 #if VERSION_PATCH
-		header["version_patch"] = VERSION_PATCH;
+		redot_header["version_patch"] = VERSION_PATCH;
 #else
-		header["version_patch"] = 0;
+		redot_header["version_patch"] = 0;
 #endif
-		header["version_status"] = VERSION_STATUS;
-		header["version_status_version"] = VERSION_STATUS_VERSION;
-		header["version_build"] = VERSION_BUILD;
-		header["version_full_name"] = VERSION_FULL_NAME;
+		redot_header["version_status"] = VERSION_STATUS;
+		redot_header["version_status_version"] = VERSION_STATUS_VERSION;
+		redot_header["version_build"] = VERSION_BUILD;
+		redot_header["version_full_name"] = VERSION_FULL_NAME;
 
-		api_dump["header"] = header;
+		api_dump["redot_header"] = redot_header;
+	}
+
+	{
+		//godot compatible header
+		Dictionary godot_compat_header;
+		godot_compat_header["version_major"] = GODOT_VERSION_MAJOR;
+		godot_compat_header["version_minor"] = GODOT_VERSION_MINOR;
+#if GODOT_VERSION_PATCH
+		godot_compat_header["version_patch"] = GODOT_VERSION_PATCH;
+#else
+		godot_compat_header["version_patch"] = 0;
+#endif
+		godot_compat_header["version_status"] = GODOT_VERSION_STATUS;
+		godot_compat_header["version_build"] = GODOT_VERSION_BUILD;
+		godot_compat_header["version_full_name"] = GODOT_VERSION_FULL_NAME;
+
+		api_dump["header"] = godot_compat_header;
 	}
 
 	const uint32_t vec3_elems = 3;
