@@ -138,6 +138,7 @@ void VideoStreamPlayer::_notification(int p_notification) {
 		} break;
 
 		case NOTIFICATION_EXIT_TREE: {
+			stop();
 			AudioServer::get_singleton()->remove_mix_callback(_mix_audios, this);
 		} break;
 

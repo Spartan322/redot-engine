@@ -49,12 +49,14 @@ protected:
 	StringName tracker_name = "head";
 	StringName pose_name = SceneStringName(default_);
 	Ref<XRPositionalTracker> tracker;
+	Transform3D pose_offset;
 
 	void _bind_tracker();
 	void _unbind_tracker();
 	void _changed_tracker(const StringName &p_tracker_name, int p_tracker_type);
 	void _removed_tracker(const StringName &p_tracker_name, int p_tracker_type);
 	void _pose_changed(const Ref<XRPose> &p_pose);
+	void _notification(int p_what);
 
 public:
 	PackedStringArray get_configuration_warnings() const override;
@@ -82,6 +84,7 @@ private:
 	StringName pose_name = SceneStringName(default_);
 	bool has_tracking_data = false;
 	bool show_when_tracked = false;
+	Transform3D pose_offset;
 
 protected:
 	Ref<XRPositionalTracker> tracker;
@@ -98,6 +101,7 @@ protected:
 	void _set_has_tracking_data(bool p_has_tracking_data);
 
 	void _update_visibility();
+	void _notification(int p_what);
 
 public:
 	void _validate_property(PropertyInfo &p_property) const;
@@ -200,6 +204,7 @@ private:
 protected:
 	void _notification(int p_what);
 	static void _bind_methods();
+	virtual void _physics_interpolated_changed() override;
 
 public:
 	PackedStringArray get_configuration_warnings() const override;
