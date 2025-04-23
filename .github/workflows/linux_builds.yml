@@ -179,6 +179,7 @@ jobs:
         with:
           bin: ${{ matrix.bin }}
           scons-flags: target=template_debug dev_build=yes verbose=yes
+          redot-cpp-branch: ${{ env.GODOT_CPP_BRANCH }}
 
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save
