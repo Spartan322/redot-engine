@@ -63,7 +63,7 @@ void load_editor_translations(const String &p_locale) {
 		if (etl->lang == p_locale) {
 			Vector<uint8_t> data;
 			data.resize(etl->uncomp_size);
-			int ret = Compression::decompress(data.ptrw(), etl->uncomp_size, etl->data, etl->comp_size, Compression::MODE_DEFLATE);
+			const int64_t ret = Compression::decompress(data.ptrw(), etl->uncomp_size, etl->data, etl->comp_size, Compression::MODE_DEFLATE);
 			ERR_FAIL_COND_MSG(ret == -1, "Compressed file is corrupt.");
 
 			Ref<FileAccessMemory> fa;
@@ -91,7 +91,7 @@ void load_property_translations(const String &p_locale) {
 		if (etl->lang == p_locale) {
 			Vector<uint8_t> data;
 			data.resize(etl->uncomp_size);
-			int ret = Compression::decompress(data.ptrw(), etl->uncomp_size, etl->data, etl->comp_size, Compression::MODE_DEFLATE);
+			const int64_t ret = Compression::decompress(data.ptrw(), etl->uncomp_size, etl->data, etl->comp_size, Compression::MODE_DEFLATE);
 			ERR_FAIL_COND_MSG(ret == -1, "Compressed file is corrupt.");
 
 			Ref<FileAccessMemory> fa;
@@ -119,7 +119,7 @@ void load_doc_translations(const String &p_locale) {
 		if (dtl->lang == p_locale) {
 			Vector<uint8_t> data;
 			data.resize(dtl->uncomp_size);
-			int ret = Compression::decompress(data.ptrw(), dtl->uncomp_size, dtl->data, dtl->comp_size, Compression::MODE_DEFLATE);
+			const int64_t ret = Compression::decompress(data.ptrw(), dtl->uncomp_size, dtl->data, dtl->comp_size, Compression::MODE_DEFLATE);
 			ERR_FAIL_COND_MSG(ret == -1, "Compressed file is corrupt.");
 
 			Ref<FileAccessMemory> fa;
@@ -147,7 +147,7 @@ void load_extractable_translations(const String &p_locale) {
 		if (etl->lang == p_locale) {
 			Vector<uint8_t> data;
 			data.resize(etl->uncomp_size);
-			int ret = Compression::decompress(data.ptrw(), etl->uncomp_size, etl->data, etl->comp_size, Compression::MODE_DEFLATE);
+			const int64_t ret = Compression::decompress(data.ptrw(), etl->uncomp_size, etl->data, etl->comp_size, Compression::MODE_DEFLATE);
 			ERR_FAIL_COND_MSG(ret == -1, "Compressed file is corrupt.");
 
 			Ref<FileAccessMemory> fa;
@@ -179,7 +179,7 @@ Vector<Vector<String>> get_extractable_message_list() {
 
 		Vector<uint8_t> data;
 		data.resize(etl->uncomp_size);
-		int ret = Compression::decompress(data.ptrw(), etl->uncomp_size, etl->data, etl->comp_size, Compression::MODE_DEFLATE);
+		const int64_t ret = Compression::decompress(data.ptrw(), etl->uncomp_size, etl->data, etl->comp_size, Compression::MODE_DEFLATE);
 		ERR_FAIL_COND_V_MSG(ret == -1, list, "Compressed file is corrupt.");
 
 		Ref<FileAccessMemory> fa;

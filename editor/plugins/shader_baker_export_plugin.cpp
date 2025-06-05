@@ -112,10 +112,10 @@ bool ShaderBakerExportPlugin::_begin_customize_resources(const Ref<EditorExportP
 	tasks_cancelled = false;
 
 	StringBuilder to_hash;
-	to_hash.append("[GodotVersionNumber]");
-	to_hash.append(VERSION_NUMBER);
-	to_hash.append("[GodotVersionHash]");
-	to_hash.append(VERSION_HASH);
+	to_hash.append("[RedotVersionNumber]");
+	to_hash.append(REDOT_VERSION_NUMBER);
+	to_hash.append("[RedotVersionHash]");
+	to_hash.append(REDOT_VERSION_HASH);
 	to_hash.append("[Renderer]");
 	to_hash.append(shader_cache_renderer_name);
 	customization_configuration_hash = to_hash.as_string().hash64();

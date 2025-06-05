@@ -75,6 +75,12 @@ private:
 		ShapeIndexPair(int p_other, int p_self) :
 				other(p_other), self(p_self) {}
 
+		static uint32_t hash(const ShapeIndexPair &p_pair) {
+			uint32_t hash = hash_murmur3_one_32(p_pair.other);
+			hash = hash_murmur3_one_32(p_pair.self, hash);
+			return hash_fmix32(hash);
+		}
+
 		friend bool operator==(const ShapeIndexPair &p_lhs, const ShapeIndexPair &p_rhs) {
 			return (p_lhs.other == p_rhs.other) && (p_lhs.self == p_rhs.self);
 		}
@@ -82,6 +88,7 @@ private:
 
 	struct Overlap {
 		HashMap<ShapeIDPair, ShapeIndexPair, ShapeIDPair> shape_pairs;
+		HashMap<ShapeIndexPair, int, ShapeIndexPair> ref_counts;
 		LocalVector<ShapeIndexPair> pending_added;
 		LocalVector<ShapeIndexPair> pending_removed;
 		RID rid;

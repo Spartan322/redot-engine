@@ -1058,9 +1058,6 @@ void AccessibilityDriverAccessKit::accessibility_update_set_popup_type(const RID
 	_ensure_node(p_id, ae);
 
 	switch (p_popup) {
-		case DisplayServer::AccessibilityPopupType::POPUP_UNKNOWN: {
-			accesskit_node_set_has_popup(ae->node, ACCESSKIT_HAS_POPUP_TRUE);
-		} break;
 		case DisplayServer::AccessibilityPopupType::POPUP_MENU: {
 			accesskit_node_set_has_popup(ae->node, ACCESSKIT_HAS_POPUP_MENU);
 		} break;
@@ -1280,13 +1277,6 @@ void AccessibilityDriverAccessKit::accessibility_update_set_flag(const RID &p_id
 				accesskit_node_set_hidden(ae->node);
 			} else {
 				accesskit_node_clear_hidden(ae->node);
-			}
-		} break;
-		case DisplayServer::AccessibilityFlags::FLAG_LINKED: {
-			if (p_value) {
-				accesskit_node_set_linked(ae->node);
-			} else {
-				accesskit_node_clear_linked(ae->node);
 			}
 		} break;
 		case DisplayServer::AccessibilityFlags::FLAG_MULTISELECTABLE: {
