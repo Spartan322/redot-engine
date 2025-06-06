@@ -41,10 +41,13 @@ class PCKPacker : public RefCounted {
 
 	Ref<FileAccess> file;
 	int alignment = 0;
-	uint64_t ofs = 0;
 
 	Vector<uint8_t> key;
 	bool enc_dir = false;
+
+	uint64_t file_base = 0;
+	uint64_t file_base_ofs = 0;
+	uint64_t dir_base_ofs = 0;
 
 	static void _bind_methods();
 
@@ -66,4 +69,5 @@ public:
 	Error flush(bool p_verbose = false);
 
 	PCKPacker() {}
+	~PCKPacker();
 };

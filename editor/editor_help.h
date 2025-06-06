@@ -96,6 +96,7 @@ class EditorHelp : public VBoxContainer {
 	};
 
 	bool select_locked = false;
+	bool update_pending = false;
 
 	String prev_search;
 

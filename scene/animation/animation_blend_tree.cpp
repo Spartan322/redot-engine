@@ -57,7 +57,7 @@ Variant AnimationNodeAnimation::get_parameter_default_value(const StringName &p_
 	if (p_parameter == backward) {
 		return false;
 	}
-	return 0;
+	return 0.0;
 }
 
 AnimationNode::NodeTimeInfo AnimationNodeAnimation::get_node_time_info() const {
@@ -440,10 +440,10 @@ Variant AnimationNodeOneShot::get_parameter_default_value(const StringName &p_pa
 	} else if (p_parameter == active || p_parameter == internal_active) {
 		return false;
 	} else if (p_parameter == time_to_restart) {
-		return -1;
-	} else {
-		return 0.0;
+		return -1.0;
 	}
+
+	return 0.0;
 }
 
 bool AnimationNodeOneShot::is_parameter_read_only(const StringName &p_parameter) const {
@@ -776,7 +776,7 @@ Variant AnimationNodeAdd2::get_parameter_default_value(const StringName &p_param
 		return ret;
 	}
 
-	return 0;
+	return 0.0;
 }
 
 String AnimationNodeAdd2::get_caption() const {
@@ -817,7 +817,7 @@ Variant AnimationNodeAdd3::get_parameter_default_value(const StringName &p_param
 		return ret;
 	}
 
-	return 0;
+	return 0.0;
 }
 
 String AnimationNodeAdd3::get_caption() const {
@@ -861,7 +861,7 @@ Variant AnimationNodeBlend2::get_parameter_default_value(const StringName &p_par
 		return ret;
 	}
 
-	return 0; // For blend amount.
+	return 0.0; // For blend amount.
 }
 
 String AnimationNodeBlend2::get_caption() const {
@@ -902,7 +902,7 @@ Variant AnimationNodeBlend3::get_parameter_default_value(const StringName &p_par
 		return ret;
 	}
 
-	return 0; // For blend amount.
+	return 0.0; // For blend amount.
 }
 
 String AnimationNodeBlend3::get_caption() const {
@@ -942,7 +942,7 @@ Variant AnimationNodeSub2::get_parameter_default_value(const StringName &p_param
 		return ret;
 	}
 
-	return 0;
+	return 0.0;
 }
 
 String AnimationNodeSub2::get_caption() const {
@@ -1148,7 +1148,7 @@ Variant AnimationNodeTransition::get_parameter_default_value(const StringName &p
 	if (p_parameter == prev_xfading) {
 		return 0.0;
 	} else if (p_parameter == prev_index || p_parameter == current_index) {
-		return -1;
+		return (int)-1;
 	} else {
 		return String();
 	}

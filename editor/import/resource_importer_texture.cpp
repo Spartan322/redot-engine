@@ -37,6 +37,7 @@
 #include "core/io/image_loader.h"
 #include "core/version.h"
 #include "editor/editor_file_system.h"
+#include "editor/editor_settings.h"
 #include "editor/gui/editor_toaster.h"
 #include "editor/import/resource_importer_texture_settings.h"
 #include "editor/themes/editor_scale.h"
@@ -796,9 +797,8 @@ Error ResourceImporterTexture::import(ResourceUID::ID p_source_id, const String 
 
 	// Load the editor-only image.
 	Ref<Image> editor_image;
-	bool import_editor_image = use_editor_scale || convert_editor_colors;
 
-	if (import_editor_image) {
+	if (use_editor_scale || convert_editor_colors) {
 		float editor_scale = use_editor_scale ? scale * EDSCALE : scale;
 
 		int32_t editor_loader_flags = loader_flags;
@@ -812,6 +812,11 @@ Error ResourceImporterTexture::import(ResourceUID::ID p_source_id, const String 
 		if (err != OK) {
 			WARN_PRINT(vformat("Failed to import an image resource for editor use from '%s'.", p_source_file));
 		} else {
+			if (convert_editor_colors) {
+				float image_saturation = EDITOR_GET("interface/theme/icon_saturation");
+				editor_image->adjust_bcs(1.0, 1.0, image_saturation);
+			}
+
 			images_imported.push_back(editor_image);
 		}
 	}
