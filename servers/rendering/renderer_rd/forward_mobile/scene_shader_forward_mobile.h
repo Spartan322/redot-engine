@@ -76,8 +76,10 @@ public:
 	}
 
 	enum ShaderGroup {
-		SHADER_GROUP_BASE, // Always compiled at the beginning.
-		SHADER_GROUP_MULTIVIEW,
+		SHADER_GROUP_FP32,
+		SHADER_GROUP_FP32_MULTIVIEW,
+		SHADER_GROUP_FP16,
+		SHADER_GROUP_FP16_MULTIVIEW,
 	};
 
 	struct ShaderSpecialization {
@@ -313,6 +315,7 @@ public:
 
 	SceneForwardMobileShaderRD shader;
 	ShaderCompiler compiler;
+	bool use_fp16 = false;
 
 	RID default_shader;
 	RID default_material;
@@ -346,6 +349,8 @@ public:
 	void init(const String p_defines);
 	void set_default_specialization(const ShaderSpecialization &p_specialization);
 	uint32_t get_pipeline_compilations(RS::PipelineSource p_source);
+	void enable_fp32_shader_group();
+	void enable_fp16_shader_group();
 	void enable_multiview_shader_group();
 	bool is_multiview_shader_group_enabled() const;
 };

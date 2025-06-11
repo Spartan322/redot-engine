@@ -79,7 +79,7 @@ class TranslationServer : public Object {
 					(p_locale.variant == variant);
 		}
 
-		operator String() const;
+		explicit operator String() const;
 
 		Locale(const TranslationServer &p_server, const String &p_locale, bool p_add_defaults);
 	};

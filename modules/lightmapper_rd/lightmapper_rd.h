@@ -90,6 +90,15 @@ class LightmapperRD : public Lightmapper {
 		}
 	};
 
+	struct LightMetadata {
+		String name;
+		uint32_t type = LIGHT_TYPE_DIRECTIONAL;
+
+		bool operator<(const LightMetadata &p_light) const {
+			return type < p_light.type;
+		}
+	};
+
 	struct Vertex {
 		float position[3] = {};
 		float normal_z = 0.0;
@@ -205,7 +214,7 @@ class LightmapperRD : public Lightmapper {
 	Vector<MeshInstance> mesh_instances;
 
 	Vector<Light> lights;
-	Vector<String> light_names;
+	Vector<LightMetadata> light_metadata;
 
 	struct TriangleSort {
 		uint32_t cell_index = 0;

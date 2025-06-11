@@ -71,6 +71,7 @@ public:
 	const StringName updated = "updated";
 
 	const StringName line_separation = "line_separation";
+	const StringName paragraph_separation = "paragraph_separation";
 	const StringName font = "font";
 	const StringName font_size = "font_size";
 	const StringName font_color = "font_color";
@@ -155,6 +156,8 @@ public:
 
 	const StringName Start = "Start";
 	const StringName End = "End";
+	const StringName state_started = "state_started";
+	const StringName state_finished = "state_finished";
 
 	const StringName FlatButton = "FlatButton";
 };

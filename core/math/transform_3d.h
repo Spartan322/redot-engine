@@ -124,7 +124,7 @@ struct [[nodiscard]] Transform3D {
 		origin.z = p_tz;
 	}
 
-	operator String() const;
+	explicit operator String() const;
 
 	Transform3D() = default;
 	constexpr Transform3D(const Basis &p_basis, const Vector3 &p_origin = Vector3()) :
