@@ -360,7 +360,7 @@ struct [[nodiscard]] Rect2 {
 		return position + size;
 	}
 
-	operator String() const;
+	explicit operator String() const;
 	operator Rect2i() const;
 
 	Rect2() = default;
