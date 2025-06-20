@@ -767,7 +767,7 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
 		for (const StringName &E : animation_list) {
 			Ref<Animation> anim = tree->get_animation(E);
 			for (int i = 0; i < anim->get_track_count(); i++) {
-				String track_path = anim->track_get_path(i);
+				String track_path = String(anim->track_get_path(i));
 				paths.insert(track_path);
 
 				String track_type_name;
@@ -892,8 +892,8 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
 			if (ti) {
 				//just a node, not a property track
 				String types_text = "[";
-				if (types.has(path)) {
-					RBSet<String>::Iterator F = types[path].begin();
+				if (types.has(String(path))) {
+					RBSet<String>::Iterator F = types[String(path)].begin();
 					types_text += *F;
 					while (F) {
 						types_text += " / " + *F;

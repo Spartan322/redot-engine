@@ -35,6 +35,7 @@
 #include "core/os/os.h"
 
 typedef void (*EditorRunInstanceStarting)(int p_index, List<String> &r_arguments);
+typedef bool (*EditorRunInstanceRequestScreenshot)(const Callable &p_callback);
 
 class EditorRun {
 public:
@@ -60,6 +61,7 @@ private:
 
 public:
 	inline static EditorRunInstanceStarting instance_starting_callback = nullptr;
+	inline static EditorRunInstanceRequestScreenshot instance_rq_screenshot_callback = nullptr;
 
 	Status get_status() const;
 	String get_running_scene() const;
@@ -72,6 +74,8 @@ public:
 	bool has_child_process(OS::ProcessID p_pid) const;
 	int get_child_process_count() const { return pids.size(); }
 	OS::ProcessID get_current_process() const;
+
+	static bool request_screenshot(const Callable &p_callback);
 
 	static WindowPlacement get_window_placement();
 

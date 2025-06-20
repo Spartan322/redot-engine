@@ -604,6 +604,7 @@ TEST_SUITE("[Navigation2D]") {
 		navigation_polygon->add_outline(PackedVector2Array({ Vector2(-1000.0, -1000.0), Vector2(1000.0, -1000.0), Vector2(1000.0, 1000.0), Vector2(-1000.0, 1000.0) }));
 		navigation_server->map_set_active(map, true);
 		navigation_server->map_set_use_async_iterations(map, false);
+		navigation_server->region_set_use_async_iterations(region, false);
 		navigation_server->region_set_map(region, map);
 		navigation_server->region_set_navigation_polygon(region, navigation_polygon);
 		navigation_server->physics_process(0.0); // Give server some cycles to commit.
@@ -661,6 +662,7 @@ TEST_SUITE("[Navigation2D]") {
 		RID region = navigation_server->region_create();
 		navigation_server->map_set_active(map, true);
 		navigation_server->map_set_use_async_iterations(map, false);
+		navigation_server->region_set_use_async_iterations(region, false);
 		navigation_server->region_set_map(region, map);
 		navigation_server->region_set_navigation_polygon(region, navigation_polygon);
 		navigation_server->physics_process(0.0); // Give server some cycles to commit.

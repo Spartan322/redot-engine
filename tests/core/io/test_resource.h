@@ -386,13 +386,8 @@ TEST_CASE("[Resource] Duplication") {
 			INFO(std::string(String(orig->get_class_name()).utf8().get_data()));
 
 			orig->call("set_defaults");
-
 			const Ref<Resource> &dupe = p_duplicate_fn(orig);
-			if ((p_test_mode == TEST_MODE_RESOURCE_DUPLICATE_DEEP_WITH_MODE || p_test_mode == TEST_MODE_VARIANT_DUPLICATE_DEEP_WITH_MODE) && p_deep_mode == RESOURCE_DEEP_DUPLICATE_MAX) {
-				CHECK(dupe.is_null());
-			} else {
-				dupe->call("verify_duplication", orig, p_test_mode, p_deep_mode);
-			}
+			dupe->call("verify_duplication", orig, p_test_mode, p_deep_mode);
 		}
 	};
 
@@ -416,7 +411,7 @@ TEST_CASE("[Resource] Duplication") {
 
 	SUBCASE("Resource::duplicate_deep()") {
 		static int deep_mode = 0;
-		for (deep_mode = 0; deep_mode <= RESOURCE_DEEP_DUPLICATE_MAX; deep_mode++) {
+		for (deep_mode = 0; deep_mode < RESOURCE_DEEP_DUPLICATE_MAX; deep_mode++) {
 			_run_test(
 					TEST_MODE_RESOURCE_DUPLICATE_DEEP_WITH_MODE,
 					(ResourceDeepDuplicateMode)deep_mode,
@@ -469,7 +464,7 @@ TEST_CASE("[Resource] Duplication") {
 
 	SUBCASE("Variant::duplicate_deep()") {
 		static int deep_mode = 0;
-		for (deep_mode = 0; deep_mode <= RESOURCE_DEEP_DUPLICATE_MAX; deep_mode++) {
+		for (deep_mode = 0; deep_mode < RESOURCE_DEEP_DUPLICATE_MAX; deep_mode++) {
 			_run_test(
 					TEST_MODE_VARIANT_DUPLICATE_DEEP_WITH_MODE,
 					(ResourceDeepDuplicateMode)deep_mode,

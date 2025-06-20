@@ -618,7 +618,7 @@ void DisplayServerWindows::_thread_fd_monitor(void *p_ud) {
 		if (dir.is_relative_path() || dir == ".") {
 			Char16String current_dir_name;
 			size_t str_len = GetCurrentDirectoryW(0, nullptr);
-			current_dir_name.resize(str_len + 1);
+			current_dir_name.resize_uninitialized(str_len + 1);
 			GetCurrentDirectoryW(current_dir_name.size(), (LPWSTR)current_dir_name.ptrw());
 			if (dir == ".") {
 				dir = String::utf16((const char16_t *)current_dir_name.get_data()).trim_prefix(R"(\\?\)").replace_char('\\', '/');
@@ -3392,7 +3392,7 @@ static INT_PTR input_text_dialog_cmd_proc(HWND hWnd, UINT code, WPARAM wParam, L
 		ERR_FAIL_NULL_V(text_edit, false);
 
 		Char16String text;
-		text.resize(GetWindowTextLengthW(text_edit) + 1);
+		text.resize_uninitialized(GetWindowTextLengthW(text_edit) + 1);
 		GetWindowTextW(text_edit, (LPWSTR)text.get_data(), text.size());
 
 		const Callable *callback = (const Callable *)GetWindowLongPtrW(hWnd, GWLP_USERDATA);
@@ -4660,7 +4660,7 @@ LRESULT DisplayServerWindows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 	// Process window messages.
 	switch (uMsg) {
 		case WM_GETOBJECT: {
-			get_object_recieved = true;
+			get_object_received = true;
 		} break;
 		case WM_MENUCOMMAND: {
 			native_menu->_menu_activate(HMENU(lParam), (int)wParam);
@@ -7179,7 +7179,7 @@ DisplayServerWindows::DisplayServerWindows(const String &p_rendering_driver, Win
 			}
 
 			uint64_t delta = OS::get_singleton()->get_ticks_msec() - time_wait;
-			if (delta > 500 || get_object_recieved) {
+			if (delta > 500 || get_object_received) {
 				break;
 			}
 		}

@@ -37,7 +37,6 @@ import android.util.Log;
 
 import androidx.core.splashscreen.SplashScreen;
 
-import com.godot.game.BuildConfig;
 import org.redotengine.godot.GodotActivity;
 
 /**

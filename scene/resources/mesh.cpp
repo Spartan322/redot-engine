@@ -1681,6 +1681,7 @@ void ArrayMesh::_set_surfaces(const Array &p_surfaces) {
 	}
 
 	surfaces.clear();
+	clear_cache();
 
 	aabb = AABB();
 	for (int i = 0; i < surface_data.size(); i++) {

@@ -35,6 +35,7 @@ package org.redotengine.editor
 import android.Manifest
 import android.util.Log
 import androidx.annotation.CallSuper
+import org.redotengine.godot.Godot
 import org.redotengine.godot.GodotLib
 import org.redotengine.godot.utils.GameMenuUtils
 import org.redotengine.godot.utils.PermissionsUtil
@@ -71,12 +72,7 @@ abstract class BaseGodotGame: GodotEditor() {
 					.putExtra(EditorMessageDispatcher.EXTRA_MSG_DISPATCHER_PAYLOAD, intent.getBundleExtra(EditorMessageDispatcher.EXTRA_MSG_DISPATCHER_PAYLOAD))
 
 				Log.d(TAG, "Relaunching XR project using ${editorWindowInfo.windowClassName} with parameters ${launchingArgs.contentToString()}")
-				val godot = godot
-				if (godot != null) {
-					godot.destroyAndKillProcess {
-						ProcessPhoenix.triggerRebirth(this, relaunchIntent)
-					}
-				} else {
+				Godot.getInstance(applicationContext).destroyAndKillProcess {
 					ProcessPhoenix.triggerRebirth(this, relaunchIntent)
 				}
 				return
