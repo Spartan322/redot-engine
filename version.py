@@ -11,4 +11,4 @@ docs = "latest"
 godot_major = 4
 godot_minor = 5
 godot_patch = 0
-godot_status = "dev2"
+godot_status = "beta"

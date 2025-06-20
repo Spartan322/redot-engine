@@ -32,7 +32,7 @@
 
 package org.redotengine.godot.plugin;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -136,10 +136,10 @@ public final class GodotPluginRegistry {
 
 		// Register the manifest plugins
 		try {
-			final Activity activity = godot.getActivity();
-			ApplicationInfo appInfo = activity
+			final Context context = godot.getContext();
+			ApplicationInfo appInfo = context
 											  .getPackageManager()
-											  .getApplicationInfo(activity.getPackageName(),
+											  .getApplicationInfo(context.getPackageName(),
 													  PackageManager.GET_META_DATA);
 			Bundle metaData = appInfo.metaData;
 			if (metaData == null || metaData.isEmpty()) {

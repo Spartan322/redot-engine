@@ -158,7 +158,7 @@ void BonePropertiesEditor::_meta_changed(const String &p_property, const Variant
 	}
 
 	String key = p_property.get_slicec('/', 3);
-	if (!skeleton->has_bone_meta(1, key)) {
+	if (!skeleton->has_bone_meta(bone, key)) {
 		return;
 	}
 
@@ -182,7 +182,7 @@ void BonePropertiesEditor::_meta_deleted(const String &p_property) {
 	}
 
 	String key = p_property.get_slicec('/', 3);
-	if (!skeleton->has_bone_meta(1, key)) {
+	if (!skeleton->has_bone_meta(bone, key)) {
 		return;
 	}
 
@@ -443,7 +443,7 @@ void Skeleton3DEditor::insert_keys(const bool p_all_bones) {
 
 	int bone_len = skeleton->get_bone_count();
 	Node *root = EditorNode::get_singleton()->get_tree()->get_root();
-	String path = root->get_path_to(skeleton);
+	String path = String(root->get_path_to(skeleton));
 
 	AnimationTrackEditor *te = AnimationPlayerEditor::get_singleton()->get_track_editor();
 	te->make_insert_queue();

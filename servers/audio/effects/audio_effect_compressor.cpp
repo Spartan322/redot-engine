@@ -187,6 +187,9 @@ StringName AudioEffectCompressor::get_sidechain() const {
 }
 
 void AudioEffectCompressor::_validate_property(PropertyInfo &p_property) const {
+	if (!Engine::get_singleton()->is_editor_hint()) {
+		return;
+	}
 	if (p_property.name == "sidechain") {
 		String buses = "";
 		for (int i = 0; i < AudioServer::get_singleton()->get_bus_count(); i++) {
