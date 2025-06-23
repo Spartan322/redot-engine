@@ -174,6 +174,7 @@ class Godot private constructor(val context: Context) {
 	private var commandLine : MutableList<String> = ArrayList<String>()
 	private var xrMode = XRMode.REGULAR
 	private val useImmersive = AtomicBoolean(false)
+	private val isEdgeToEdge = AtomicBoolean(false)
 	private var useDebugOpengl = false
 	private var darkMode = false
 
@@ -237,6 +238,8 @@ class Godot private constructor(val context: Context) {
 					xrMode = XRMode.OPENXR
 				} else if (commandLine[i] == "--debug_opengl") {
 					useDebugOpengl = true
+				} else if (commandLine[i] == "--edge_to_edge") {
+					isEdgeToEdge.set(true)
 				} else if (commandLine[i] == "--fullscreen") {
 					useImmersive.set(true)
 					newArgs.add(commandLine[i])
@@ -335,9 +338,44 @@ class Godot private constructor(val context: Context) {
 	}
 
 	/**
+	 * Enable edge-to-edge.
+	 *
+	 * Must be called from the UI thread.
+	 */
+	@JvmOverloads
+	fun enableEdgeToEdge(enabled: Boolean, override: Boolean = false) {
+		val window = getActivity()?.window ?: return
+
+		if (!isEdgeToEdge.compareAndSet(!enabled, enabled) && !override) {
+			return
+		}
+
+		val rootView = window.decorView
+		WindowCompat.setDecorFitsSystemWindows(window, !(isEdgeToEdge.get() || useImmersive.get()))
+		if (enabled) {
+			ViewCompat.setOnApplyWindowInsetsListener(rootView, null)
+			rootView.setPadding(0, 0, 0, 0)
+		} else {
+			val insetType = WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+			if (rootView.rootWindowInsets != null) {
+				val windowInsets = WindowInsetsCompat.toWindowInsetsCompat(rootView.rootWindowInsets)
+				val insets = windowInsets.getInsets(insetType)
+				rootView.setPadding(insets.left, insets.top, insets.right, insets.bottom)
+			}
+
+			ViewCompat.setOnApplyWindowInsetsListener(rootView) { v: View, insets: WindowInsetsCompat ->
+				val windowInsets = insets.getInsets(insetType)
+				v.setPadding(windowInsets.left, windowInsets.top, windowInsets.right, windowInsets.bottom)
+				WindowInsetsCompat.CONSUMED
+			}
+		}
+	}
+
+	/**
 	 * Toggle immersive mode.
 	 * Must be called from the UI thread.
 	 */
+	@JvmOverloads
 	fun enableImmersiveMode(enabled: Boolean, override: Boolean = false) {
 		val activity = getActivity() ?: return
 		val window = activity.window ?: return
@@ -346,7 +384,7 @@ class Godot private constructor(val context: Context) {
 			return
 		}
 
-		WindowCompat.setDecorFitsSystemWindows(window, !enabled)
+		WindowCompat.setDecorFitsSystemWindows(window, !(isEdgeToEdge.get() || useImmersive.get()))
 		val controller = WindowInsetsControllerCompat(window, window.decorView)
 		if (enabled) {
 			controller.hide(WindowInsetsCompat.Type.systemBars())
@@ -381,6 +419,9 @@ class Godot private constructor(val context: Context) {
 
 	@Keep
 	fun isInImmersiveMode() = useImmersive.get()
+
+	@Keep
+	fun isInEdgeToEdgeMode() = isEdgeToEdge.get()
 
 	/**
 	 * Used to complete initialization of the view used by the engine for rendering.
@@ -553,7 +594,6 @@ class Godot private constructor(val context: Context) {
 
 		renderView?.onActivityResumed()
 		registerSensorsIfNeeded()
-		enableImmersiveMode(useImmersive.get(), true)
 		for (plugin in pluginRegistry.allPlugins) {
 			plugin.onMainResume()
 		}
@@ -706,7 +746,6 @@ class Godot private constructor(val context: Context) {
 
 		runOnHostThread {
 			registerSensorsIfNeeded()
-			enableImmersiveMode(useImmersive.get(), true)
 		}
 
 		for (plugin in pluginRegistry.allPlugins) {
@@ -1028,7 +1067,7 @@ class Godot private constructor(val context: Context) {
 	 */
 	@Keep
 	private fun hasFeature(feature: String): Boolean {
-		if (primaryHost?.supportsFeature(feature) ?: false) {
+		if (primaryHost?.supportsFeature(feature) == true) {
 			return true;
 		}
 

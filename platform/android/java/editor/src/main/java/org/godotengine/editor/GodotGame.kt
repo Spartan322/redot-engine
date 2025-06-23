@@ -39,12 +39,17 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.annotation.CallSuper
 import androidx.core.view.isVisible
 import org.redotengine.editor.embed.GameMenuFragment
-import org.redotengine.godot.utils.GameMenuUtils
+import org.redotengine.godot.GodotLib
+import org.redotengine.godot.editor.utils.GameMenuUtils
 import org.redotengine.godot.utils.ProcessPhoenix
 import org.redotengine.godot.utils.isHorizonOSDevice
 import org.redotengine.godot.utils.isNativeXRDevice
+import org.redotengine.godot.xr.HYBRID_APP_PANEL_FEATURE
+import org.redotengine.godot.xr.XRMode
+import org.redotengine.godot.xr.isHybridAppEnabled
 
 /**
  * Drives the 'run project' window of the Godot Editor.
@@ -82,6 +87,18 @@ open class GodotGame : BaseGodotGame() {
 				gameView.getGlobalVisibleRect(gameViewSourceRectHint)
 			}
 		}
+	}
+
+	override fun getCommandLine(): MutableList<String> {
+		val updatedArgs = super.getCommandLine()
+		if (!updatedArgs.contains(XRMode.REGULAR.cmdLineArg)) {
+			updatedArgs.add(XRMode.REGULAR.cmdLineArg)
+		}
+		if (!updatedArgs.contains(XR_MODE_ARG)) {
+			updatedArgs.add(XR_MODE_ARG)
+			updatedArgs.add("off")
+		}
+		return updatedArgs
 	}
 
 	override fun enterPiPMode() {
@@ -245,6 +262,21 @@ open class GodotGame : BaseGodotGame() {
 
 	override fun onGameMenuCollapsed(collapsed: Boolean) {
 		expandGameMenuButton?.isVisible = shouldShowGameMenuBar() && isMenuBarCollapsable() && collapsed
+	}
+
+	@CallSuper
+	override fun supportsFeature(featureTag: String): Boolean {
+		if (HYBRID_APP_PANEL_FEATURE == featureTag) {
+			// Check if openxr is enabled
+			if (!GodotLib.getGlobal("xr/openxr/enabled").toBoolean()) {
+				return false
+			}
+
+			// Check if hybrid is enabled
+			return isHybridAppEnabled()
+		}
+
+		return super.supportsFeature(featureTag)
 	}
 
 }

@@ -50,6 +50,8 @@
 #include "scene/openxr_composition_layer_cylinder.h"
 #include "scene/openxr_composition_layer_equirect.h"
 #include "scene/openxr_composition_layer_quad.h"
+#include "scene/openxr_render_model.h"
+#include "scene/openxr_render_model_manager.h"
 #include "scene/openxr_visibility_mask.h"
 
 #include "extensions/openxr_composition_layer_depth_extension.h"
@@ -71,6 +73,7 @@
 #include "extensions/openxr_palm_pose_extension.h"
 #include "extensions/openxr_performance_settings_extension.h"
 #include "extensions/openxr_pico_controller_extension.h"
+#include "extensions/openxr_render_model_extension.h"
 #include "extensions/openxr_valve_analog_threshold_extension.h"
 #include "extensions/openxr_visibility_mask_extension.h"
 #include "extensions/openxr_wmr_controller_extension.h"
@@ -124,6 +127,7 @@ void initialize_openxr_module(ModuleInitializationLevel p_level) {
 		GDREGISTER_ABSTRACT_CLASS(OpenXRFutureResult); // Declared abstract, should never be instantiated by a user (Q or should this be internal?)
 		GDREGISTER_CLASS(OpenXRFutureExtension);
 		GDREGISTER_CLASS(OpenXRAPIExtension);
+		GDREGISTER_CLASS(OpenXRRenderModelExtension);
 
 		// Note, we're not registering all wrapper classes here, there is no point in exposing them
 		// if there isn't specific logic to expose.
@@ -160,6 +164,11 @@ void initialize_openxr_module(ModuleInitializationLevel p_level) {
 			OpenXRFutureExtension *future_extension = memnew(OpenXRFutureExtension);
 			OpenXRAPI::register_extension_wrapper(future_extension);
 			Engine::get_singleton()->add_singleton(Engine::Singleton("OpenXRFutureExtension", future_extension));
+
+			// Register render model extension as a singleton.
+			OpenXRRenderModelExtension *render_model_extension = memnew(OpenXRRenderModelExtension);
+			OpenXRAPI::register_extension_wrapper(render_model_extension);
+			Engine::get_singleton()->add_singleton(Engine::Singleton("OpenXRRenderModelExtension", render_model_extension));
 
 			// register gated extensions
 			if (int(GLOBAL_GET("xr/openxr/extensions/debug_utils")) > 0) {
@@ -236,6 +245,8 @@ void initialize_openxr_module(ModuleInitializationLevel p_level) {
 #endif
 
 		GDREGISTER_CLASS(OpenXRVisibilityMask);
+		GDREGISTER_CLASS(OpenXRRenderModel);
+		GDREGISTER_CLASS(OpenXRRenderModelManager);
 
 		XRServer *xr_server = XRServer::get_singleton();
 		if (xr_server) {

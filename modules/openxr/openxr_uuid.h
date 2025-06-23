@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  game_menu_utils_jni.h                                                 */
+/*  openxr_uuid.h                                                         */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             REDOT ENGINE                               */
@@ -32,18 +32,23 @@
 
 #pragma once
 
-#include <jni.h>
+// Godot helper functions for OpenXR XrUuidExt data type
+#include "core/templates/hashfuncs.h"
 
-extern "C" {
-JNIEXPORT void JNICALL Java_org_redotengine_godot_utils_GameMenuUtils_setSuspend(JNIEnv *env, jclass clazz, jboolean enabled);
-JNIEXPORT void JNICALL Java_org_redotengine_godot_utils_GameMenuUtils_nextFrame(JNIEnv *env, jclass clazz);
-JNIEXPORT void JNICALL Java_org_redotengine_godot_utils_GameMenuUtils_setNodeType(JNIEnv *env, jclass clazz, jint type);
-JNIEXPORT void JNICALL Java_org_redotengine_godot_utils_GameMenuUtils_setSelectMode(JNIEnv *env, jclass clazz, jint mode);
-JNIEXPORT void JNICALL Java_org_redotengine_godot_utils_GameMenuUtils_setSelectionVisible(JNIEnv *env, jclass clazz, jboolean visible);
-JNIEXPORT void JNICALL Java_org_redotengine_godot_utils_GameMenuUtils_setCameraOverride(JNIEnv *env, jclass clazz, jboolean enabled);
-JNIEXPORT void JNICALL Java_org_redotengine_godot_utils_GameMenuUtils_setCameraManipulateMode(JNIEnv *env, jclass clazz, jint mode);
-JNIEXPORT void JNICALL Java_org_redotengine_godot_utils_GameMenuUtils_resetCamera2DPosition(JNIEnv *env, jclass clazz);
-JNIEXPORT void JNICALL Java_org_redotengine_godot_utils_GameMenuUtils_resetCamera3DPosition(JNIEnv *env, jclass clazz);
-JNIEXPORT void JNICALL Java_org_redotengine_godot_utils_GameMenuUtils_playMainScene(JNIEnv *env, jclass clazz);
-JNIEXPORT void JNICALL Java_org_redotengine_godot_utils_GameMenuUtils_setDebugMuteAudio(JNIEnv *env, jclass clazz, jboolean enabled);
-}
+#include <openxr/openxr.h>
+
+struct HashMapHasherXrUuidEXT {
+	static _FORCE_INLINE_ uint32_t hash(const XrUuidEXT &p_uuid) { return hash_murmur3_buffer(p_uuid.data, XR_UUID_SIZE_EXT); }
+};
+
+template <>
+struct HashMapComparatorDefault<XrUuidEXT> {
+	static bool compare(const XrUuidEXT &p_lhs, const XrUuidEXT &p_rhs) {
+		for (int i = 0; i < XR_UUID_SIZE_EXT; i++) {
+			if (p_lhs.data[i] != p_rhs.data[i]) {
+				return false;
+			}
+		}
+		return true;
+	}
+};
