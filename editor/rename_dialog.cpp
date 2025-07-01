@@ -71,7 +71,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor) {
 
 	lne_search = memnew(LineEdit);
 	lne_search->set_name("lne_search");
-	lne_search->set_accessibility_name(TTRC("Search"));
+	lne_search->set_accessibility_name(TTRC("Search:"));
 	lne_search->set_h_size_flags(Control::SIZE_EXPAND_FILL);
 
 	Label *lbl_replace = memnew(Label);
@@ -79,7 +79,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor) {
 
 	lne_replace = memnew(LineEdit);
 	lne_replace->set_name("lne_replace");
-	lne_replace->set_accessibility_name(TTRC("Replace"));
+	lne_replace->set_accessibility_name(TTRC("Replace:"));
 	lne_replace->set_h_size_flags(Control::SIZE_EXPAND_FILL);
 
 	grd_main->add_child(lbl_search);
@@ -94,7 +94,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor) {
 
 	lne_prefix = memnew(LineEdit);
 	lne_prefix->set_name("lne_prefix");
-	lne_prefix->set_accessibility_name(TTRC("Prefix"));
+	lne_prefix->set_accessibility_name(TTRC("Prefix:"));
 	lne_prefix->set_h_size_flags(Control::SIZE_EXPAND_FILL);
 
 	Label *lbl_suffix = memnew(Label);
@@ -102,7 +102,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor) {
 
 	lne_suffix = memnew(LineEdit);
 	lne_suffix->set_name("lne_suffix");
-	lne_prefix->set_accessibility_name(TTRC("Suffix"));
+	lne_prefix->set_accessibility_name(TTRC("Suffix:"));
 	lne_suffix->set_h_size_flags(Control::SIZE_EXPAND_FILL);
 
 	grd_main->add_child(lbl_prefix);
@@ -215,7 +215,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor) {
 
 	spn_count_start = memnew(SpinBox);
 	spn_count_start->set_tooltip_text(TTR("Initial value for the counter."));
-	spn_count_start->set_accessibility_name(TTRC("Counter Initial Value"));
+	spn_count_start->set_accessibility_name(TTRC("Initial value for the counter."));
 	spn_count_start->set_step(1);
 	spn_count_start->set_min(0);
 	hbc_count_options->add_child(spn_count_start);
@@ -227,7 +227,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor) {
 
 	spn_count_step = memnew(SpinBox);
 	spn_count_step->set_tooltip_text(TTR("Amount by which counter is incremented for each node."));
-	spn_count_step->set_accessibility_name(TTRC("Counter Step"));
+	spn_count_step->set_accessibility_name(TTRC("Amount by which counter is incremented for each node."));
 	spn_count_step->set_step(1);
 	hbc_count_options->add_child(spn_count_step);
 
@@ -238,7 +238,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor) {
 
 	spn_count_padding = memnew(SpinBox);
 	spn_count_padding->set_tooltip_text(TTR("Minimum number of digits for the counter.\nMissing digits are padded with leading zeros."));
-	spn_count_padding->set_accessibility_name(TTRC("Minimum Number of Digits"));
+	spn_count_padding->set_accessibility_name(TTRC("Minimum number of digits for the counter."));
 	spn_count_padding->set_step(1);
 	hbc_count_options->add_child(spn_count_padding);
 
