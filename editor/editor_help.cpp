@@ -4891,7 +4891,6 @@ FindBar::FindBar() {
 	find_prev->set_flat(true);
 	find_prev->set_disabled(results_count < 1);
 	find_prev->set_tooltip_text(TTR("Previous Match"));
-	find_prev->set_accessibility_name(TTRC("Previous Match"));
 	add_child(find_prev);
 	find_prev->set_focus_mode(FOCUS_ACCESSIBILITY);
 	find_prev->connect(SceneStringName(pressed), callable_mp(this, &FindBar::search_prev));
@@ -4900,7 +4899,6 @@ FindBar::FindBar() {
 	find_next->set_flat(true);
 	find_next->set_disabled(results_count < 1);
 	find_next->set_tooltip_text(TTR("Next Match"));
-	find_next->set_accessibility_name(TTRC("Next Match"));
 	add_child(find_next);
 	find_next->set_focus_mode(FOCUS_ACCESSIBILITY);
 	find_next->connect(SceneStringName(pressed), callable_mp(this, &FindBar::search_next));
@@ -4908,7 +4906,6 @@ FindBar::FindBar() {
 	hide_button = memnew(Button);
 	hide_button->set_flat(true);
 	hide_button->set_tooltip_text(TTR("Hide"));
-	hide_button->set_accessibility_name(TTRC("Hide"));
 	hide_button->set_focus_mode(FOCUS_ACCESSIBILITY);
 	hide_button->connect(SceneStringName(pressed), callable_mp(this, &FindBar::_hide_bar));
 	hide_button->set_v_size_flags(SIZE_SHRINK_CENTER);

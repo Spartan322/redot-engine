@@ -207,7 +207,6 @@ const GodotInputGamepads = {
 		sample: function () {
 			const pads = GodotInputGamepads.get_pads();
 			const samples = [];
-			let active = 0;
 			for (let i = 0; i < pads.length; i++) {
 				const pad = pads[i];
 				if (!pad) {
@@ -227,10 +226,8 @@ const GodotInputGamepads = {
 					s.axes.push(pad.axes[a]);
 				}
 				samples.push(s);
-				active++;
 			}
 			GodotInputGamepads.samples = samples;
-			return active;
 		},
 
 		init: function (onchange) {
@@ -509,6 +506,10 @@ const GodotInput = {
 		const func = GodotRuntime.get_func(callback);
 		const canvas = GodotConfig.canvas;
 		function move_cb(evt) {
+			if (evt.pointerType == 'touch') {
+				return;
+			}
+
 			const rect = canvas.getBoundingClientRect();
 			const pos = GodotInput.computePosition(evt, rect);
 			// Scale movement
@@ -540,6 +541,10 @@ const GodotInput = {
 		const func = GodotRuntime.get_func(callback);
 		const canvas = GodotConfig.canvas;
 		function button_cb(p_pressed, evt) {
+			if (evt.pointerType == 'touch') {
+				return;
+			}
+
 			const rect = canvas.getBoundingClientRect();
 			const pos = GodotInput.computePosition(evt, rect);
 			const modifiers = GodotInput.getModifiers(evt);
@@ -552,8 +557,8 @@ const GodotInput = {
 				evt.preventDefault();
 			}
 		}
-		GodotEventListeners.add(canvas, 'mousedown', button_cb.bind(null, 1), false);
-		GodotEventListeners.add(window, 'mouseup', button_cb.bind(null, 0), false);
+		GodotEventListeners.add(canvas, 'pointerdown', button_cb.bind(null, 1), false);
+		GodotEventListeners.add(window, 'pointerup', button_cb.bind(null, 0), false);
 	},
 
 	/*
@@ -656,7 +661,8 @@ const GodotInput = {
 	godot_js_input_gamepad_sample__proxy: 'sync',
 	godot_js_input_gamepad_sample__sig: 'i',
 	godot_js_input_gamepad_sample: function () {
-		return GodotInputGamepads.sample();
+		GodotInputGamepads.sample();
+		return 0;
 	},
 
 	godot_js_input_gamepad_sample_get__proxy: 'sync',
