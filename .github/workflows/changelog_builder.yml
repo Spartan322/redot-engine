@@ -100,7 +100,7 @@ jobs:
                 }
               ],
               "template": "## Release Notes for Redot #{{RELEASE_VERSION}}\nWe're excited to announce the release of our latest version, featuring a host of enhancements and fixes. Here's what's new:\n\n#{{CHANGELOG}}\n**Full Changelog**: #{{RELEASE_DIFF}}",
-              "pr_template": "* #{{SIMPLIFIED_TITLE}} by #{{AUTHOR}} in #{{URL}}",
+              "pr_template": "* #{{SIMPLIFIED_TITLE}} by @#{{AUTHOR}} in #{{URL}}",
               "max_pull_requests": 1000,
               "max_back_track_time_days": 365
             }
@@ -202,7 +202,7 @@ jobs:
                 }
               ],
               "template": "## Since Redot #{{SINCE_VERSION}}\n\n#{{CHANGELOG}}\n**Full Changelog**: #{{RELEASE_DIFF}}",
-              "pr_template": "* #{{SIMPLIFIED_TITLE}} by #{{AUTHOR}} in #{{URL}}",
+              "pr_template": "* #{{SIMPLIFIED_TITLE}} by @#{{AUTHOR}} in #{{URL}}",
               "max_pull_requests": 1000,
               "max_back_track_time_days": 365
             }
