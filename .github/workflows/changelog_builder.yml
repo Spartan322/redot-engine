@@ -2,13 +2,10 @@ name: 📜 Changelog Builder
 on:
   push:
     tags:
-      - redot-*
+      - redot-4.3*
 
 permissions:
   contents: write
-
-env:
-  STABLE_SINCE_REDOT_VERSION: 4.4
 
 jobs:
   prepare-release:
@@ -25,6 +22,18 @@ jobs:
           configurationJson: |
             {
               "base_branches": ["4.3"],
+              "tag_resolver": {
+                "method": "sort",
+                "filter": {
+                  "method": "regexr",
+                  "pattern": "redot-(4\\.3(?:\\.\\d+)?)-(?:(alpha|beta|rc)\\.(\\d+)|(stable))"
+                },
+                "transformer": {
+                  "method": "regexr",
+                  "pattern": "redot-(\\d+\\.\\d+(?:\\.\\d+)?-(?:(alpha|beta|rc)\\.(\\d+)|(stable)))",
+                  "target": "$1"
+                }
+              },
               "custom_placeholders": [
                 {
                   "name": "RELEASE_VERSION",
@@ -39,8 +48,9 @@ jobs:
                   "name": "SIMPLIFIED_TITLE",
                   "source": "TITLE",
                   "transformer": {
-                    "pattern": "^(\\[\\d+\\.\\d+\\] )",
-                    "target": ""
+                    "method": "regexr",
+                    "pattern": "^(\\[\\d+\\.\\d+\\] )?(.*)",
+                    "target": "$2"
                   }
                 }
               ],
@@ -102,10 +112,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          fromTag: redot-${{env.STABLE_SINCE_REDOT_VERSION}}-stable
           configurationJson: |
             {
               "base_branches": ["4.3"],
+              "tag_resolver": {
+                "method": "sort",
+                "filter": {
+                  "method": "regexr",
+                  "pattern": "redot-(4\\.3(?:\\.\\d+)?)-(stable)"
+                },
+                "transformer": {
+                  "method": "regexr",
+                  "pattern": "redot-(\\d+\\.\\d+(?:\\.\\d+)?-stable)",
+                  "target": "$1"
+                }
+              },
               "custom_placeholders": [
                 {
                   "name": "RELEASE_VERSION",
@@ -117,11 +138,21 @@ jobs:
                   }
                 },
                 {
+                  "name": "SINCE_VERSION",
+                  "source": "FROM_TAG",
+                  "transformer": {
+                    "method": "regexr",
+                    "pattern": "redot-(\\d+\\.\\d+(?:\\.\\d+)?)-(?:(alpha|beta|rc)\\.(\\d+)|(stable))",
+                    "target": "$1"
+                  }
+                },
+                {
                   "name": "SIMPLIFIED_TITLE",
                   "source": "TITLE",
                   "transformer": {
-                    "pattern": "^(\\[\\d+\\.\\d+\\] )",
-                    "target": ""
+                    "method": "regexr",
+                    "pattern": "^(\\[\\d+\\.\\d+\\] )?(.*)",
+                    "target": "$2"
                   }
                 }
               ],
@@ -170,7 +201,7 @@ jobs:
                   "consume": true
                 }
               ],
-              "template": "## Since Redot ${{env.STABLE_SINCE_REDOT_VERSION}}\n\n#{{CHANGELOG}}\n**Full Changelog**: #{{RELEASE_DIFF}}",
+              "template": "## Since Redot #{{SINCE_VERSION}}\n\n#{{CHANGELOG}}\n**Full Changelog**: #{{RELEASE_DIFF}}",
               "pr_template": "* #{{SIMPLIFIED_TITLE}} by #{{AUTHOR}} in #{{URL}}",
               "max_pull_requests": 1000,
               "max_back_track_time_days": 365
